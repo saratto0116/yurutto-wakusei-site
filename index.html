@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ゆるっと惑星占い｜あなたのマイ惑星はどの子？</title>
+<meta name="description" content="8つの質問でマイ惑星とパートナー惑星に出逢える、ゆるっと惑星ズの無料オリジナル診断。">
+<meta name="theme-color" content="#fff8ee">
+<style>
+@font-face{
+ font-family:"YuruttoPop";
+ src:
+  local("Hannotate SC"),
+  local("Hannotate TC"),
+  local("TsukuARdGothic-Regular"),
+  local("Hiragino Maru Gothic ProN W4"),
+  local("Hiragino Maru Gothic ProN"),
+  local("Arial Rounded MT Bold");
+ font-display:swap;
+}
+:root{
+ --ink:#412f3c;--muted:#796c7c;--panel:rgba(255,253,250,.88);--white:#fff;
+ --line:rgba(103,79,116,.11);--violet:#7b5ce6;--deep:#6044bf;--pink:#f279ac;
+ --gold:#efb23c;--sky:#70cbe5;--shadow:0 25px 60px rgba(74,44,76,.13);
+ --soft-shadow:0 9px 22px rgba(73,40,76,.09);--display-font:"YuruttoPop","Hannotate SC","TsukuARdGothic-Regular","Hiragino Maru Gothic ProN","Arial Rounded MT Bold","M PLUS Rounded 1c","Yu Gothic",system-ui,sans-serif;
+ --planet-bg:linear-gradient(160deg,rgba(255,255,255,.92),rgba(255,255,255,.82));
+ --planet-line:rgba(255,255,255,.75);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+ margin:0;min-height:100svh;color:var(--ink);
+ font-family:var(--display-font);
+ font-weight:700;
+ background:
+  radial-gradient(circle at 12% 8%,#ffe0ea 0,transparent 29%),
+  radial-gradient(circle at 91% 12%,#dbf1ff 0,transparent 28%),
+  radial-gradient(circle at 84% 90%,#e8e0ff 0,transparent 29%),
+  linear-gradient(145deg,#fff9e7,#fff7f2 39%,#f5efff);
+ overflow-x:hidden;
+}
+button,input,select,textarea{font:inherit;font-family:var(--display-font)}
+.bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.blob{position:absolute;border-radius:50%;animation:float 8s ease-in-out infinite}
+.b1{width:145px;height:145px;background:rgba(255,208,225,.40);top:8%;left:-55px}
+.b2{width:170px;height:170px;background:rgba(204,232,255,.42);top:27%;right:-78px;animation-delay:-3s}
+.b3{width:150px;height:150px;background:rgba(224,214,255,.44);bottom:2%;left:-52px;animation-delay:-5s}
+.star{position:absolute;width:var(--s);height:var(--s);opacity:.5;animation:twinkle var(--t) ease-in-out infinite;animation-delay:var(--d)}
+.star:before,.star:after{content:"";position:absolute;background:#e7ae35;border-radius:99px}
+.star:before{left:42%;top:0;width:16%;height:100%}.star:after{top:42%;left:0;width:100%;height:16%}
+.st1{--s:19px;--t:3.1s;--d:.2s;top:9%;left:8%}.st2{--s:13px;--t:3.6s;--d:1s;top:20%;right:8%}
+.st3{--s:15px;--t:3.8s;--d:.4s;bottom:25%;left:7%}.st4{--s:20px;--t:3.3s;--d:1.2s;bottom:11%;right:8%}
+@keyframes float{50%{transform:translateY(-15px)}}@keyframes twinkle{0%,100%{transform:scale(.7);opacity:.24}50%{transform:scale(1.18) rotate(18deg);opacity:.65}}
+.shell{position:relative;z-index:1;width:min(100%,590px);margin:auto;padding:12px 15px calc(22px + env(safe-area-inset-bottom))}
+.header{
+ position:sticky;top:9px;z-index:8;display:flex;align-items:center;justify-content:space-between;
+ gap:10px;margin-bottom:14px;padding:9px 10px 9px 13px;background:rgba(255,253,251,.78);
+ backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:999px;
+ border:1px solid rgba(255,255,255,.75);box-shadow:0 8px 22px rgba(70,45,75,.07);
+}
+.brand{border:0;background:none;font:inherit;font-family:var(--display-font);font-weight:900;color:#6347ae;cursor:pointer;white-space:nowrap;flex:none}
+.nav{display:flex;gap:3px;flex:1;justify-content:flex-end}
+.nav button{
+ border:0;background:transparent;border-radius:999px;padding:8px 10px;font:inherit;font-family:var(--display-font);font-size:12px;
+ font-weight:800;color:#74667c;cursor:pointer;transition:.16s
+}
+.nav button:hover,.nav button.selected{background:#f0eaff;color:#644abc}
+.page{display:none;animation:pageIn .38s cubic-bezier(.2,.95,.32,1) both}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(13px) scale(.99)}to{opacity:1;transform:none}}
+.glass{
+ position:relative;overflow:hidden;background:var(--panel);border:1px solid rgba(255,255,255,.79);
+ backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px);border-radius:33px;box-shadow:var(--shadow)
+}
+.glass:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 1px 1px rgba(255,255,255,.9)}
+.home{padding:24px 18px 20px;text-align:center;background:linear-gradient(180deg,rgba(216,240,255,.96),rgba(244,251,255,.92))}
+.kicker{display:inline-flex;background:#f1eaff;color:#7457a4;padding:7px 14px;border-radius:99px;font-size:12px;font-weight:900;letter-spacing:.1em}
+h1{font-family:var(--display-font);font-weight:900;margin:12px 0 0;font-size:clamp(34px,10vw,48px);line-height:1.04;letter-spacing:.03em;color:#ff6f8e;text-shadow:0 3px 0 rgba(255,255,255,.92),0 8px 18px rgba(86,141,210,.18)}
+.gradient{
+ display:block;padding:2px 0 4px;
+ background:none!important;
+ color:#6e4fe0!important;
+ -webkit-text-fill-color:#6e4fe0!important;
+ -webkit-text-stroke:0 transparent;
+ text-shadow:
+  -2px -2px 0 rgba(255,255,255,.98),
+  2px -2px 0 rgba(255,255,255,.98),
+  -2px 2px 0 rgba(255,255,255,.98),
+  2px 2px 0 rgba(255,255,255,.98),
+  0 4px 10px rgba(92,116,218,.18)
+}
+.lead{font-size:14px;line-height:1.8;color:var(--muted);margin:13px 0 12px;font-weight:800}
+.orbit-wrap{height:253px;width:min(100%,355px);margin:0 auto 13px;position:relative}
+.orbit{position:absolute;inset:25px 31px 18px;border:1.5px dashed rgba(123,92,230,.19);border-radius:50%;transform:rotate(-12deg)}
+.orbit:before{content:"";position:absolute;top:-5px;left:39%;width:10px;height:10px;background:#f4bf4c;border-radius:50%;box-shadow:0 0 0 5px rgba(244,191,76,.16)}
+.center{position:absolute;left:50%;top:50%;width:125px;height:125px;transform:translate(-50%,-46%);animation:centerBob 3.8s ease-in-out infinite;z-index:2;filter:drop-shadow(0 14px 18px rgba(67,43,75,.16))}
+.center img,.floatp img{width:100%;height:100%;object-fit:contain;background:transparent}
+.floatp{position:absolute;width:64px;height:64px;animation:bob var(--time) ease-in-out infinite;animation-delay:var(--delay);filter:drop-shadow(0 10px 14px rgba(67,43,75,.12))}
+.fp1{left:4%;top:40px;--time:4.1s;--delay:-1s}.fp2{right:3%;top:40px;--time:4.4s;--delay:-2s}.fp3{left:0;top:128px;--time:3.9s;--delay:-.5s}.fp4{right:0;top:128px;--time:4.2s;--delay:-2.6s}.fp5{left:15%;bottom:4px;--time:4s;--delay:-2s}.fp6{right:15%;bottom:4px;--time:3.7s;--delay:-.7s}.fp7{left:50%;top:2px;transform:translateX(-50%);--time:4.5s;--delay:-1.5s;animation-name:topBob}
+@keyframes bob{50%{translate:0 -8px;rotate:2deg}}@keyframes topBob{50%{transform:translateX(-50%) translateY(-8px)}}@keyframes centerBob{50%{transform:translate(-50%,-52%)}}
+.primary{
+ position:relative;overflow:hidden;width:100%;display:flex;justify-content:center;align-items:center;gap:8px;
+ padding:16px 20px;border:0;border-radius:999px;background:linear-gradient(110deg,#7655dc,#ed76a9);
+ color:#fff;font:inherit;font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 13px 25px rgba(108,75,201,.27);transition:.16s
+}
+.primary:hover{transform:translateY(-2px);box-shadow:0 16px 28px rgba(108,75,201,.34)}.primary:active{transform:scale(.98)}
+.micro{font-size:12px;color:#978d9a;margin:12px 0 18px}
+.home-links{display:grid;grid-template-columns:1fr;gap:10px;text-align:left}
+.portal{
+ display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;padding:15px 14px;border:1px solid var(--line);background:#fff;border-radius:19px;cursor:pointer;
+ font:inherit;font-family:var(--display-font);color:var(--ink);transition:.17s
+}
+.portal:hover{transform:translateY(-2px);box-shadow:var(--soft-shadow)}
+.portal-icon{font-size:22px;display:grid;place-items:center;grid-row:1 / span 2}.portal b{font-size:14px;display:block;font-weight:900}.portal small{font-size:11px;color:var(--muted);line-height:1.55;font-weight:700}
+.page-card{padding:19px 16px 18px}
+.section-head{text-align:center;margin-bottom:17px}
+.eyebrow{font-size:12px;font-weight:900;color:#7457a4;letter-spacing:.11em;margin:0 0 7px}
+.section-title{margin:0;font-family:var(--display-font);font-size:27px;line-height:1.15;letter-spacing:.03em}.section-copy{margin:8px 0 0;font-size:13px;line-height:1.75;color:var(--muted);font-weight:800}
+.characters{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.char-card{
+ border:1px solid var(--planet-line);background:var(--planet-bg);border-radius:25px;padding:8px 8px 12px;text-align:center;
+ cursor:pointer;font:inherit;color:var(--ink);transition:.17s
+}
+.char-card:hover{transform:translateY(-3px);box-shadow:var(--soft-shadow)}
+.char-card img{width:100%;aspect-ratio:1;object-fit:contain;object-position:center;border-radius:0;background:transparent;filter:drop-shadow(0 10px 16px rgba(82,60,92,.12))}
+.char-card b{display:block;font-size:16px;margin-top:10px;font-weight:900}.char-card span{font-size:12px;color:#79648d;font-weight:800}
+.start-mini{margin-top:15px}
+.detail{padding:17px 15px 18px;text-align:center;background:var(--planet-bg);border-color:var(--planet-line)}
+.backline{display:flex;justify-content:flex-start;margin-bottom:10px}
+.back{
+ border:0;background:rgba(255,255,255,.72);color:#634bb1;padding:9px 13px;border-radius:99px;font:inherit;font-size:13px;font-weight:900;cursor:pointer
+}
+.detail img.main-img{width:min(100%,310px);aspect-ratio:1;object-fit:contain;border-radius:0;background:transparent;filter:drop-shadow(0 16px 22px rgba(82,60,92,.18))}
+.detail-title{font-family:var(--display-font);font-size:29px;margin:9px 0 3px;line-height:1.14}.detail-type{font-weight:900;color:#5f437f;font-size:15px}
+#detailQuote{display:none}
+.quote{display:inline-block;padding:8px 17px;border-radius:999px;background:#fff;font-size:18px;font-weight:900;color:#604977;margin:11px 0}
+.chips{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:14px 0 16px}
+.chips span{font-size:15px;font-weight:900;border-radius:999px;padding:10px 15px;background:rgba(255,255,255,.86);border:2px solid rgba(255,255,255,.72);color:#614a75;box-shadow:0 8px 16px rgba(82,60,92,.08)}
+.description{text-align:left;line-height:1.8;font-size:14px;color:#5f5361;margin:0 2px 14px;font-weight:800}
+.relationship{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left;margin-bottom:15px}
+.relation{border-radius:17px;padding:11px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.7);font-size:12px;color:#675d6d}
+.relation b{display:block;color:var(--ink);font-size:14px;margin-top:4px}
+.about-card{padding:22px 17px 20px}
+.about-hero{text-align:center;margin-bottom:20px}
+.about-hero h2{margin:8px 0;font-family:var(--display-font);font-size:31px;line-height:1.15}.about-hero p{margin:0;color:var(--muted);font-size:14px;line-height:1.75}
+.about-section{padding:15px 13px;background:linear-gradient(180deg,#fffefc,#fff7fd);border:1px solid var(--line);border-radius:22px;margin-bottom:10px}
+.about-section h3{margin:0 0 8px;font-size:16px;font-weight:900}.about-section p{margin:0;color:#645965;font-size:13px;line-height:1.8;font-weight:800}
+.steps{display:grid;gap:7px;margin-top:11px}
+.stepbox{display:flex;align-items:center;gap:10px;background:#fff9ef;border-radius:16px;padding:10px;font-size:13px;font-weight:900}
+.stepnum{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#f0e8ff;color:#664bb6;font-weight:900;flex:none}
+.progress-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 6px 9px;color:var(--muted);font-size:13px;font-weight:800}
+.dots{display:flex;gap:5px}.dot{width:8px;height:8px;border-radius:50%;background:rgba(123,92,230,.17)}.dot.done{background:var(--pink)}.dot.now{background:var(--violet);transform:scale(1.35);box-shadow:0 0 0 4px rgba(123,92,230,.13)}
+.track{height:9px;background:rgba(255,255,255,.77);border-radius:99px;overflow:hidden;margin-bottom:14px}.bar{height:100%;background:linear-gradient(90deg,#f594bd,#8566e4,#6bcce5);border-radius:inherit;transition:width .35s;width:0}
+.quiz-card{padding:22px 17px 18px}.qtag{display:inline-flex;background:#f0eaff;color:#684bb7;border-radius:99px;padding:7px 13px;font-weight:900;font-size:13px}.question{margin:16px 2px 19px;font-family:var(--display-font);font-size:22px;line-height:1.45}.choices{display:grid;gap:10px}.choice{display:flex;align-items:center;gap:12px;width:100%;padding:14px 12px;border:1.5px solid var(--line);background:#fff;border-radius:20px;font:inherit;color:var(--ink);text-align:left;cursor:pointer;transition:.15s}.choice:hover{transform:translateY(-2px);border-color:rgba(123,92,230,.29)}.choice.selected{background:#f1ebff;animation:select .27s}.letter{display:grid;place-items:center;flex:none;width:30px;height:30px;background:#f0ebfb;color:#6b51bb;border-radius:50%;font-size:13px;font-weight:900}.choice.selected .letter{background:var(--violet);color:#fff}@keyframes select{50%{transform:scale(1.025)}}
+.result{padding:20px 16px 18px;text-align:center}.result-title{font-family:var(--display-font);font-size:29px;line-height:1.15;margin:7px 0 13px}.resultbox{padding:11px 12px 15px;border-radius:30px;background:linear-gradient(145deg,#fff9e7,#f7efff);border:1px solid var(--line)}.hero{width:min(100%,285px);aspect-ratio:1;object-fit:contain;border-radius:0;background:transparent;filter:drop-shadow(0 16px 22px rgba(82,60,92,.16));animation:reveal .57s cubic-bezier(.2,1.1,.3,1)}@keyframes reveal{from{opacity:0;transform:scale(.76) rotate(-2deg)}}
+.resulttype{color:#785b9b;font-weight:900;font-size:15px;margin:6px 0 9px}.helpbox{text-align:left;margin:13px 0;padding:13px;border-radius:24px;background:#f2fcff;border:1px solid #d8edf4}.help-row{display:flex;gap:11px;align-items:center;margin-top:9px}.help-row img{width:76px;height:76px;border-radius:0;object-fit:contain;object-position:center;background:transparent;filter:drop-shadow(0 10px 16px rgba(82,60,92,.14))}.help-name{font-weight:900;font-size:17px}.help-text{font-size:13px;line-height:1.7;color:#56616b;font-weight:800}.actions{display:grid;gap:9px}.action{border:0;border-radius:99px;padding:14px 16px;font:inherit;font-size:15px;font-weight:900;cursor:pointer;min-height:52px}.share{background:linear-gradient(105deg,#7655dc,#9369df);color:#fff}.outline{background:#fff;color:#654d93;border:1px solid #ddd0ed}.sticker-link{display:flex;align-items:center;justify-content:center;text-decoration:none;background:#dff7d9;color:#2c7a34;border:1px solid #bfe8b9}.home-action{background:#ffeef4;color:#b54f78}.disclaimer{font-size:11px;color:#958b96;line-height:1.7;margin:13px 0 0;font-weight:800}
+.planet-earth{--planet-bg:linear-gradient(160deg,rgba(232,255,206,.95),rgba(244,255,232,.88));--planet-line:rgba(199,232,159,.92)}
+.planet-mercury{--planet-bg:linear-gradient(160deg,rgba(210,244,255,.95),rgba(236,251,255,.88));--planet-line:rgba(171,223,240,.92)}
+.planet-mars{--planet-bg:linear-gradient(160deg,rgba(255,214,214,.95),rgba(255,239,236,.88));--planet-line:rgba(244,170,170,.92)}
+.planet-jupiter{--planet-bg:linear-gradient(160deg,rgba(255,224,186,.95),rgba(255,244,224,.88));--planet-line:rgba(239,188,123,.92)}
+.planet-venus{--planet-bg:linear-gradient(160deg,rgba(255,221,239,.95),rgba(255,243,249,.88));--planet-line:rgba(246,183,216,.92)}
+.planet-saturn{--planet-bg:linear-gradient(160deg,rgba(255,245,183,.95),rgba(255,251,227,.88));--planet-line:rgba(238,221,130,.92)}
+.planet-uranus{--planet-bg:linear-gradient(160deg,rgba(206,228,255,.95),rgba(237,246,255,.88));--planet-line:rgba(156,193,241,.92)}
+.planet-neptune{--planet-bg:linear-gradient(160deg,rgba(229,214,255,.95),rgba(245,238,255,.88));--planet-line:rgba(197,173,241,.92)}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.43);transform:scale(0);animation:ripple .48s;pointer-events:none}@keyframes ripple{to{transform:scale(4);opacity:0}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:15}.piece{position:absolute;left:50%;top:45%;animation:burst var(--d) ease-out forwards}@keyframes burst{from{opacity:1;transform:scale(0)}to{opacity:0;transform:translate(var(--x),var(--y)) rotate(260deg)}}
+.toast{position:fixed;z-index:20;bottom:24px;left:50%;transform:translate(-50%,20px);opacity:0;background:#443548;color:#fff;padding:12px 17px;border-radius:99px;font-size:13px;transition:.25s;white-space:nowrap;max-width:calc(100vw - 28px);text-align:center}.toast.on{opacity:1;transform:translate(-50%,0)}
+@media(min-width:521px){.home-links{grid-template-columns:1fr 1fr}.portal{display:block;padding:14px 12px}.portal-icon{display:block;margin-bottom:6px}}
+@media(max-width:520px){
+ .shell{padding:10px 11px calc(18px + env(safe-area-inset-bottom))}
+ .header{top:7px;align-items:stretch;flex-direction:column;border-radius:24px;padding:10px}
+ .brand{display:flex;justify-content:center;font-size:15px}
+ .nav{width:100%;justify-content:stretch}
+ .nav button{flex:1;padding:10px 8px}
+ .glass{border-radius:27px}
+ .home{padding:21px 14px 18px}
+ h1{font-size:clamp(29px,10vw,40px)}
+ .lead{font-size:13px;line-height:1.68}
+ .orbit-wrap{height:228px;width:min(100%,320px);margin-bottom:10px}
+ .orbit{inset:22px 27px 18px}
+ .center{width:112px;height:112px}
+ .floatp{width:56px;height:56px;border-radius:15px}
+ .fp3,.fp4{top:120px}
+ .page-card,.detail,.about-card,.quiz-card,.result{padding-left:14px;padding-right:14px}
+ .section-title,.detail-title,.result-title{font-size:24px}
+ .about-hero h2{font-size:25px}
+ .relationship{grid-template-columns:1fr}
+ .progress-row{font-size:12px;margin-left:2px;margin-right:2px}
+ .dots{gap:4px}
+ .track{margin-bottom:12px}
+ .question{margin:14px 0 17px;font-size:19px;line-height:1.45}
+ .choice{padding:13px 11px;font-size:14px}
+ .help-row{align-items:flex-start}
+ .help-row img{width:68px;height:68px}
+ .action{padding:13px 14px;font-size:14px}
+}
+@media(max-width:390px){
+ .shell{padding:9px 9px calc(16px + env(safe-area-inset-bottom))}
+ .header{padding:9px}
+ .brand{font-size:14px}
+ .nav button{padding:9px 6px;font-size:11px}
+ .orbit-wrap{height:214px}
+ .center{width:104px;height:104px}
+ .floatp{width:52px;height:52px}
+ .characters{gap:8px}
+ .char-card{border-radius:18px;padding:7px 7px 11px}
+ .char-card b{font-size:14px}
+ .char-card span{font-size:11px}
+ .question{font-size:18px}
+ .toast{white-space:normal;line-height:1.45}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><i class="star st1"></i><i class="star st2"></i><i class="star st3"></i><i class="star st4"></i></div>
+<div class="shell">
+<header class="header">
+ <button class="brand" data-go="home">🪐 ゆるっと惑星ズ</button>
+ <nav class="nav"><button data-go="home" id="navHome">ホーム</button><button data-go="characters" id="navCharacters">図鑑</button><button data-go="about" id="navAbout">About</button></nav>
+</header>
+<main>
+<section id="home" class="page active"><div class="glass home">
+ <div class="kicker">✦ 無料診断 ✦</div>
+ <h1>ゆるっと<span class="gradient">惑星占い</span></h1>
+ <p class="lead">8つのかんたんな質問で、<br>あなたの<strong>マイ惑星</strong>と<strong>パートナー惑星</strong>に出逢えるよ。</p>
+ <div class="orbit-wrap" aria-hidden="true"><div class="orbit"></div><div class="center"><img src="images/chikyumaru.png?v=20260606"></div><div class="floatp fp1"><img src="images/nepurun.png?v=20260606"></div><div class="floatp fp2"><img src="images/tenten.png?v=20260606"></div><div class="floatp fp3"><img src="images/suisui.png?v=20260606"></div><div class="floatp fp4"><img src="images/kasetti.png?v=20260606"></div><div class="floatp fp5"><img src="images/kirara.png?v=20260606"></div><div class="floatp fp6"><img src="images/dosetan.png?v=20260606"></div><div class="floatp fp7"><img src="images/mokudon.png?v=20260606"></div></div>
+ <button id="begin" class="primary ripple-button">診断をはじめる →</button>
+ <p class="micro">全8問・サクッと約30秒</p>
+ <div class="home-links">
+  <button class="portal" data-go="characters"><span class="portal-icon">🌟</span><b>キャラクター図鑑</b><small>8体の個性を見る</small></button>
+  <button class="portal" data-go="about"><span class="portal-icon">📖</span><b>占いとは？</b><small>楽しみ方を知る</small></button>
+ </div>
+</div></section>
+
+<section id="characters" class="page"><div class="glass page-card">
+ <div class="section-head"><p class="eyebrow">CHARACTERS</p><h2 class="section-title">惑星ズ図鑑</h2><p class="section-copy">気になる子をタップして、個性や相性を見てみよう。</p></div>
+ <div id="charactersGrid" class="characters"></div>
+ <button class="primary start-mini ripple-button" data-start>占いで相棒を見つける →</button>
+</div></section>
+
+<section id="character" class="page"><div class="glass detail">
+ <div class="backline"><button class="back" data-go="characters">← 図鑑にもどる</button></div>
+ <img id="detailImg" class="main-img" alt="">
+ <h2 id="detailTitle" class="detail-title"></h2><div id="detailType" class="detail-type"></div>
+ <div id="detailQuote" class="quote"></div><div id="detailChips" class="chips"></div>
+ <p id="detailDesc" class="description"></p>
+ <div class="relationship"><div class="relation">気が合う仲間<b id="detailFriends"></b></div><div class="relation">パートナー惑星<b id="detailHelper"></b></div></div>
+ <button class="primary ripple-button" data-start>マイ惑星を診断する →</button>
+</div></section>
+
+<section id="about" class="page"><div class="glass about-card">
+ <div class="about-hero"><p class="eyebrow">ABOUT</p><h2>ゆるっと惑星占いとは？</h2><p>個性豊かな8体の惑星キャラクターから、今のあなたに近い「マイ惑星」と、足りない力を届けてくれる「パートナー惑星」を見つける無料診断です。</p></div>
+ <div class="about-section"><h3>🌙 どんな占い？</h3><p>誕生日や星座で運命を決めるものではなく、選んだ答えからあなたの考え方や過ごし方の傾向を楽しむ、オリジナルのキャラクター診断です。</p></div>
+ <div class="about-section"><h3>🪐 診断の流れ</h3><div class="steps"><div class="stepbox"><span class="stepnum">1</span>7つの4択質問に直感で回答</div><div class="stepbox"><span class="stepnum">2</span>最後の2択でマイ惑星が決定</div><div class="stepbox"><span class="stepnum">3</span>マイ惑星とパートナー惑星を発見</div></div></div>
+ <div class="about-section"><h3>💌 ゆるっと惑星ズについて</h3><p>「おつかれさま」「ありがとう」「おやすみー」など、日常の気持ちを届けてくれる惑星のなかまたち。LINEスタンプは現在申請中です。</p></div>
+ <button class="primary ripple-button" data-start>診断をはじめる →</button>
+</div></section>
+
+<section id="quiz" class="page"><div class="progress-row"><span>ゆるっと診断中…</span><div id="dots" class="dots"></div><span id="step">1 / 8</span></div><div class="track"><div id="bar" class="bar"></div></div><div class="glass quiz-card"><span id="qtag" class="qtag">✦ Q1</span><h2 id="question" class="question"></h2><div id="choices" class="choices"></div></div></section>
+
+<section id="result" class="page"><div class="glass result">
+ <p class="eyebrow">診断結果</p><h2 id="resultTitle" class="result-title"></h2>
+ <div class="resultbox"><img id="hero" class="hero" alt=""><div id="resultType" class="resulttype"></div><div id="resultQuote" class="quote"></div><div id="resultChips" class="chips"></div><p id="resultDesc" class="description"></p></div>
+ <div class="helpbox"><p class="eyebrow">パートナー惑星</p><div class="help-row"><img id="helpImg" alt=""><div><div id="helpName" class="help-name"></div><div id="helpQuote" class="detail-type"></div></div></div><p id="helpText" class="help-text"></p></div>
+ <div class="actions"><button id="share" class="action share ripple-button">診断結果をシェアする ✦</button><button id="resultDetail" class="action outline">マイ惑星を詳しく見る</button><button id="helperDetail" class="action outline">パートナー惑星を詳しく見る</button><a class="action sticker-link" href="https://line.me/S/sticker/34242361" target="_blank" rel="noopener noreferrer">LINEスタンプを見る</a><button class="action home-action" data-go="home">メインページへ戻る</button></div>
+ <p class="disclaimer">※気分や性格傾向を楽しむためのオリジナル診断です。</p>
+</div></section>
+</main>
+</div>
+<div id="toast" class="toast"></div><div id="confetti" class="confetti"></div>
+<script>
+const assetVersion='20260606';
+const withAssetVersion=path=>`${path}?v=${assetVersion}`;
+const planets={
+ earth:{planet:'地球',name:'ちきゅまる',img:withAssetVersion('images/chikyumaru.png'),type:'包みこむ癒やしタイプ',phrase:'「おつかれさま」',chips:['安心感','包容力','いたわり'],friends:'きらら・ねぷるん',helper:'mars',desc:'周りをほっと安心させる優しい子。誰かの疲れに気づき、自然に寄り添える力があります。',help:'かせっちの前向きな勇気が、あなたの最初の一歩を応援してくれます。',colorClass:'planet-earth'},
+ mercury:{planet:'水星',name:'すいすい',img:withAssetVersion('images/suisui.png'),type:'軽やか対応タイプ',phrase:'「りょーかい」',chips:['理解力','対応力','スピード'],friends:'かせっち・どせたん',helper:'neptune',desc:'状況をすばやく理解し、軽やかに動ける頼れる子。物事をスムーズに進める力があります。',help:'ねぷるんのゆったりした感性が、急ぎがちな心に休息を届けてくれます。',colorClass:'planet-mercury'},
+ mars:{planet:'火星',name:'かせっち',img:withAssetVersion('images/kasetti.png'),type:'前向き挑戦タイプ',phrase:'「がんばろー」',chips:['勇気','情熱','行動力'],friends:'すいすい・もくどん',helper:'earth',desc:'元気と勇気でみんなの背中を押す子。始める力と、挑戦を楽しむ強さを持っています。',help:'ちきゅまるのいたわりが、頑張り続けるあなたをやさしく受け止めます。',colorClass:'planet-mars'},
+ jupiter:{planet:'木星',name:'もくどん',img:withAssetVersion('images/mokudon.png'),type:'ほめ上手応援タイプ',phrase:'「すごーい」',chips:['肯定','成長','明るさ'],friends:'きらら・かせっち',helper:'saturn',desc:'誰かの良さや可能性を見つけるのが得意な子。明るい言葉で、自信を育てます。',help:'どせたんのコツコツ力が、素敵な可能性を毎日の形にしてくれます。',colorClass:'planet-jupiter'},
+ venus:{planet:'金星',name:'きらら',img:withAssetVersion('images/kirara.png'),type:'愛情コミュニケーションタイプ',phrase:'「ありがとう」',chips:['感謝','愛情','つながり'],friends:'ちきゅまる・もくどん',helper:'uranus',desc:'小さな幸せや親切に気づき、感謝を届ける子。やさしさで周りを明るくします。',help:'てんてんの自由な視点が、自分らしく選ぶ勇気をくれます。',colorClass:'planet-venus'},
+ saturn:{planet:'土星',name:'どせたん',img:withAssetVersion('images/dosetan.png'),type:'コツコツ安定タイプ',phrase:'「おはよー」',chips:['継続','信頼','習慣'],friends:'すいすい・ちきゅまる',helper:'jupiter',desc:'毎日を丁寧に積み重ねるしっかり者。落ち着いた安定感で、みんなを支えます。',help:'もくどんの明るさが、積み重ねてきた努力を照らします。',colorClass:'planet-saturn'},
+ uranus:{planet:'天王星',name:'てんてん',img:withAssetVersion('images/tenten.png'),type:'自由なひらめきタイプ',phrase:'「なるほどー」',chips:['発見','個性','好奇心'],friends:'すいすい・ねぷるん',helper:'venus',desc:'人とは違う見方で、新しい発見を楽しむ子。自由な発想が魅力です。',help:'きららの温かさが、発見を誰かと分かち合う力になります。',colorClass:'planet-uranus'},
+ neptune:{planet:'海王星',name:'ねぷるん',img:withAssetVersion('images/nepurun.png'),type:'夢見る共感タイプ',phrase:'「おやすみー」',chips:['共感','想像力','癒やし'],friends:'ちきゅまる・てんてん',helper:'mercury',desc:'やさしい感性で、心を静かに癒やす子。夢見る想像力でそっと寄り添います。',help:'すいすいの軽やかさが、想いを現実の一歩へ変えてくれます。',colorClass:'planet-neptune'}
+};
+const order=['earth','mercury','mars','jupiter','venus','saturn','uranus','neptune'];
+const qs=[['休日、何をして過ごしたい？',[['ゆっくり休む','heal'],['誰かと楽しむ','connect'],['外へ出かける','move'],['好きなことに没頭','axis']]],['友達が落ち込んでいたら？',[['そっと寄り添う','heal'],['良いところを伝える','connect'],['すぐ助けに動く','move'],['別の見方を伝える','axis']]],['みんなの中での役割は？',[['安心できる空気を作る','heal'],['明るく盛り上げる','connect'],['話を進める','move'],['案や計画を考える','axis']]],['うれしいのはどんなとき？',[['ほっと落ち着けたとき','heal'],['喜びを共有できたとき','connect'],['一歩進めたとき','move'],['新しい発見をしたとき','axis']]],['トラブルが起きたら？',[['まず心を落ち着ける','heal'],['誰かに話してみる','connect'],['できることから動く','move'],['原因を考えてみる','axis']]],['言われてうれしいのは？',[['一緒にいるとほっとする','heal'],['明るい気持ちになれる','connect'],['頼りになる','move'],['考え方が素敵','axis']]],['大切にしたいのは？',[['やさしくいること','heal'],['気持ちを伝えること','connect'],['まず一歩進むこと','move'],['自分らしく選ぶこと','axis']]]];
+const finals={heal:['あなたのやさしさは、どっち寄り？',[['頑張りをねぎらう','earth'],['静かに心を癒やす','neptune']]],connect:['人を笑顔にするなら？',[['感謝を言葉にする','venus'],['魅力を見つけて伝える','jupiter']]],move:['誰かの力になるなら？',[['さっと対応する','mercury'],['一歩踏み出す勇気を出す','mars']]],axis:['自分らしく進むなら？',[['小さく続けていく','saturn'],['新しい見方を探す','uranus']]]};
+const $=id=>document.getElementById(id);let current=0,scores={},q7='',leading='',resultKey='';
+function show(page,hash=true){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===page));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('selected',x.id.toLowerCase().includes(page==='character'?'characters':page)));if(hash)history.pushState(null,'','#'+page);scrollTo({top:0,behavior:'smooth'})}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function makeGrid(){$('charactersGrid').innerHTML=order.map(k=>`<button class="char-card ${planets[k].colorClass}" data-char="${k}"><img src="${planets[k].img}" alt="${planets[k].name}"><b>${planets[k].name}</b><span>${planets[k].planet}｜${planets[k].type.replace('タイプ','')}</span></button>`).join('');document.querySelectorAll('[data-char]').forEach(b=>b.onclick=()=>detail(b.dataset.char))}
+function detail(key){const p=planets[key],h=planets[p.helper],card=$('character').querySelector('.detail');card.className='glass detail '+p.colorClass;$('detailImg').src=p.img;$('detailImg').alt=p.name;$('detailTitle').textContent=p.planet+'の「'+p.name+'」';$('detailType').textContent=p.type;$('detailQuote').textContent='';$('detailChips').innerHTML=p.chips.map(x=>'<span>'+x+'</span>').join('');$('detailDesc').textContent=p.desc;$('detailFriends').textContent=p.friends;$('detailHelper').textContent=h.name;show('character');history.replaceState(null,'','#character-'+key)}
+function start(){current=0;scores={heal:0,connect:0,move:0,axis:0};q7='';leading='';resultKey='';show('quiz');render()}
+function render(){const last=current===7,d=last?finals[leading]:qs[current];$('qtag').textContent=last?'✦ 最後の質問':'✦ Q'+(current+1);$('question').textContent=d[0];$('step').textContent=(current+1)+' / 8';$('bar').style.width=((current+1)*12.5)+'%';$('dots').innerHTML=Array.from({length:8},(_,i)=>`<i class="dot ${i<current?'done':i===current?'now':''}"></i>`).join('');$('choices').innerHTML='';shuffle(d[1]).forEach((o,i)=>{const b=document.createElement('button');b.className='choice';b.innerHTML=`<span class="letter">${String.fromCharCode(65+i)}</span><span>${o[0]}</span>`;b.onclick=()=>{b.classList.add('selected');setTimeout(()=>answer(o[1],last),180)};$('choices').appendChild(b)})}
+function answer(v,last){if(last)return result(v);scores[v]++;if(current===6)q7=v;current++;if(current===7){const max=Math.max(...Object.values(scores)),ties=Object.keys(scores).filter(k=>scores[k]===max);leading=ties.includes(q7)?q7:ties[0]}render()}
+function result(k){resultKey=k;const p=planets[k],h=planets[p.helper];$('resultTitle').textContent=p.planet+'の「'+p.name+'」！';$('hero').src=p.img;$('hero').alt=p.name;$('resultType').textContent=p.type;$('resultQuote').textContent='あなたのマイ惑星';$('resultChips').innerHTML=p.chips.map(x=>'<span>'+x+'</span>').join('');$('resultDesc').textContent=p.desc;$('helpImg').src=h.img;$('helpName').textContent=h.planet+'の「'+h.name+'」';$('helpQuote').textContent='あなたのパートナー惑星';$('helpText').textContent=p.help;show('result');burst()}
+function burst(){const c=$('confetti'),symbols=['✦','★','●','✧'],colors=['#efb23c','#f279ac','#7b5ce6','#70cbe5'];c.innerHTML='';if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;for(let i=0;i<18;i++){const s=document.createElement('span'),a=Math.PI*2*i/18,d=100+Math.random()*110;s.className='piece';s.textContent=symbols[i%4];s.style.color=colors[i%4];s.style.setProperty('--x',Math.cos(a)*d+'px');s.style.setProperty('--y',Math.sin(a)*d+'px');s.style.setProperty('--d',(650+Math.random()*370)+'ms');c.appendChild(s)}setTimeout(()=>c.innerHTML='',1100)}
+async function share(){const p=planets[resultKey],text=`私のマイ惑星は${p.planet}の「${p.name}」でした！\n${p.type}\nあなたのマイ惑星は？ #ゆるっと惑星占い`;if(navigator.share){try{await navigator.share({title:'ゆるっと惑星占い',text,url:location.href});return}catch(e){}}try{await navigator.clipboard.writeText(text+'\n'+location.href);toast('シェア用テキストをコピーしました ✦')}catch(e){toast('コピーできませんでした')}}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('on');setTimeout(()=>$('toast').classList.remove('on'),2100)}
+function ripple(e){const b=e.currentTarget,r=b.getBoundingClientRect(),x=document.createElement('span'),s=Math.max(r.width,r.height);x.className='ripple';x.style.width=x.style.height=s+'px';x.style.left=e.clientX-r.left-s/2+'px';x.style.top=e.clientY-r.top-s/2+'px';b.appendChild(x);setTimeout(()=>x.remove(),520)}
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+document.querySelectorAll('[data-start]').forEach(b=>b.onclick=start);
+document.querySelectorAll('.ripple-button').forEach(b=>b.addEventListener('pointerdown',ripple));
+$('begin').onclick=start;$('share').onclick=share;$('resultDetail').onclick=()=>detail(resultKey);$('helperDetail').onclick=()=>detail(planets[resultKey].helper);
+makeGrid();
+function fromHash(){const h=location.hash.replace('#','');if(h.startsWith('character-')){const k=h.replace('character-','');if(planets[k])return detail(k)}if(['home','characters','about'].includes(h))return show(h,false);show('home',false)}
+window.addEventListener('popstate',fromHash);fromHash();
+</script>
+</body></html>
