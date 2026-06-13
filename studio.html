@@ -208,8 +208,8 @@ function drawStudioFrame(timeSec){
  if(img?.complete){const bob=Math.sin(timeSec*2.5)*7;ctx.save();ctx.translate(w/2,1308+bob);const size=248;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}
 
  ctx.fillStyle='#664fa5';ctx.font=`900 44px ${studioFont}`;ctx.textAlign='center';
- ctx.fillText(`${planet.planet}の「${planet.name}」が気になる？`,w/2,1438);
- if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font=`900 60px ${studioFont}`;ctx.fillText('コメントで教えてね',w/2,1528)}
+ ctx.fillText(`${planet.planet}の「${planet.name}」が気になる？`,w/2,1466);
+ if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font=`900 60px ${studioFont}`;ctx.fillText('コメントで教えてね',w/2,1562)}
 
  ctx.save();ctx.globalAlpha=ctaP;
  const ctaGradient=ctx.createLinearGradient(98,1668,w-98,1774);
