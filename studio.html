@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ゆるっと惑星ズ 動画工房</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+@font-face{
+ font-family:"YuruttoPop";
+ src:local("Hannotate SC"),local("Hannotate TC"),local("TsukuARdGothic-Regular"),local("Hiragino Maru Gothic ProN W4"),local("Hiragino Maru Gothic ProN"),local("Arial Rounded MT Bold");
+ font-display:swap;
+}
+:root{
+ --ink:#412f3c;--muted:#796c7c;--line:rgba(103,79,116,.11);--violet:#7b5ce6;--pink:#f279ac;
+ --shadow:0 25px 60px rgba(74,44,76,.13);--soft-shadow:0 9px 22px rgba(73,40,76,.09);
+ --display-font:"YuruttoPop","Hannotate SC","TsukuARdGothic-Regular","Hiragino Maru Gothic ProN","Arial Rounded MT Bold","M PLUS Rounded 1c","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100svh;color:var(--ink);font-family:var(--display-font);font-weight:700;
+ background:
+  radial-gradient(circle at 12% 8%,#ffe0ea 0,transparent 29%),
+  radial-gradient(circle at 91% 12%,#dbf1ff 0,transparent 28%),
+  radial-gradient(circle at 84% 90%,#e8e0ff 0,transparent 29%),
+  linear-gradient(145deg,#fff9e7,#fff7f2 39%,#f5efff);
+}
+button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
+.shell{width:min(100%,1080px);margin:auto;padding:18px 14px 28px}
+.header{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:11px 14px;
+ background:rgba(255,253,251,.8);border:1px solid rgba(255,255,255,.8);border-radius:999px;
+ box-shadow:0 8px 22px rgba(70,45,75,.07);backdrop-filter:blur(12px)
+}
+.brand{border:0;background:none;color:#6347ae;font-weight:900;cursor:pointer;text-decoration:none}
+.back{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;padding:10px 14px;border-radius:999px;background:#f0eaff;color:#644abc;font-weight:900;border:1px solid rgba(123,92,230,.14)}
+.glass{
+ position:relative;overflow:hidden;background:rgba(255,253,250,.9);border:1px solid rgba(255,255,255,.82);
+ border-radius:32px;box-shadow:var(--shadow);backdrop-filter:blur(13px)
+}
+.glass:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 1px 1px rgba(255,255,255,.9)}
+.studio-card{padding:22px 16px 20px}
+.section-head{text-align:center;margin-bottom:16px}
+.eyebrow{font-size:12px;font-weight:900;color:#7457a4;letter-spacing:.11em;margin:0 0 7px}
+.section-title{margin:0;font-size:28px;line-height:1.15;letter-spacing:.03em}
+.studio-copy{margin:8px auto 0;max-width:34em;font-size:13px;line-height:1.75;color:var(--muted);font-weight:800}
+.studio-layout{display:grid;gap:14px;margin-top:16px}
+.studio-panel,.studio-preview{
+ background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.86);border-radius:24px;padding:14px;box-shadow:0 14px 30px rgba(72,53,97,.09)
+}
+.studio-preview{display:grid;gap:12px;justify-items:center;background:linear-gradient(180deg,rgba(237,246,255,.95),rgba(255,246,252,.92))}
+.studio-grid{display:grid;gap:12px}
+.studio-field{display:grid;gap:6px}
+.studio-field label,.studio-subhead{font-size:12px;font-weight:900;color:#7457a4;letter-spacing:.06em}
+.studio-field select,.studio-field textarea,.studio-field input{width:100%;border:1.5px solid rgba(123,92,230,.18);border-radius:18px;padding:12px 13px;background:#fff;color:var(--ink)}
+.studio-field textarea{min-height:88px;resize:vertical}
+.studio-help,.studio-note{font-size:11px;line-height:1.65;color:#7d7282}
+.studio-toggles{display:grid;gap:8px}
+.studio-toggle{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:18px;background:#fff;border:1px solid rgba(123,92,230,.14)}
+.studio-toggle input{inline-size:18px;block-size:18px;margin:0}
+.studio-actions,.studio-downloads{display:grid;gap:9px}
+.studio-actions{margin-top:14px}
+.studio-action{
+ display:flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:999px;padding:14px 16px;
+ font-size:15px;font-weight:900;cursor:pointer;min-height:52px
+}
+.studio-export{background:linear-gradient(110deg,#ff8f70,#ff5f92);color:#fff}
+.studio-ghost{background:#fff;color:#654d93;border:1px solid #ddd0ed}
+.studio-device{width:min(100%,320px);padding:10px;border-radius:34px;background:#2c2340;box-shadow:0 26px 48px rgba(56,39,72,.2)}
+.studio-screen{overflow:hidden;border-radius:26px;background:#fff6fb;border:4px solid rgba(255,255,255,.22)}
+.studio-canvas{display:block;width:100%;height:auto;aspect-ratio:9/16;background:#dfeffd}
+.studio-status{font-size:12px;color:#745f8e;font-weight:800}
+.studio-downloads a{display:none}
+.studio-downloads a.ready{display:flex}
+.studio-summary{display:grid;gap:8px;padding:12px;border-radius:20px;background:rgba(255,255,255,.84);border:1px solid rgba(255,255,255,.88);width:100%}
+.studio-badges{display:flex;flex-wrap:wrap;gap:6px}
+.studio-badges span{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#fff;border:1px solid rgba(123,92,230,.14);font-size:11px;color:#6f6182;font-weight:900}
+@media(min-width:900px){.studio-layout{grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);align-items:start}}
+@media(max-width:520px){.shell{padding:10px 11px 20px}.header{flex-direction:column;align-items:stretch;border-radius:24px}.studio-device{width:100%}.studio-panel,.studio-preview{padding:13px}.section-title{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="shell">
+ <header class="header">
+  <a class="brand" href="./">🪐 ゆるっと惑星ズ 動画工房</a>
+  <a class="back" href="./">公開サイトへ戻る</a>
+ </header>
+ <section class="glass studio-card">
+  <div class="section-head">
+   <p class="eyebrow">PRIVATE STUDIO</p>
+   <h1 class="section-title">質問ショート動画を作る</h1>
+   <p class="studio-copy">このページはあなた専用の動画量産ページです。サイト内の質問を使って、縦型ショート動画のプレビューと書き出しをブラウザだけで行えます。</p>
+  </div>
+  <div class="studio-layout">
+   <div class="studio-panel">
+    <div class="studio-grid">
+     <div class="studio-field"><label for="studioQuestion">使う質問</label><select id="studioQuestion"></select></div>
+     <div class="studio-field"><label for="studioPlanet">メインに出すキャラ</label><select id="studioPlanet"></select></div>
+     <div class="studio-field"><label for="studioHook">冒頭フック</label><input id="studioHook" type="text" value="あなたならどれを選ぶ？"></div>
+     <div class="studio-field"><label for="studioCta">ラストの案内</label><textarea id="studioCta">続きは無料サイトで診断してね
+プロフィールのリンクからチェック</textarea></div>
+     <div class="studio-field">
+      <span class="studio-subhead">表示オプション</span>
+      <div class="studio-toggles">
+       <label class="studio-toggle"><input id="studioShowHandle" type="checkbox" checked>アカウント名とURLを入れる</label>
+       <label class="studio-toggle"><input id="studioShowPrompt" type="checkbox" checked>コメント促しを入れる</label>
+      </div>
+     </div>
+    </div>
+    <div class="studio-actions">
+     <button id="studioReplay" class="studio-action studio-ghost">プレビューを再生</button>
+     <button id="studioExport" class="studio-action studio-export">動画を書き出す</button>
+    </div>
+    <p class="studio-note">書き出し形式は WebM です。軽いMVPとして、依存なし・ブラウザ完結に寄せています。</p>
+   </div>
+   <div class="studio-preview">
+    <div class="studio-device"><div class="studio-screen"><canvas id="studioCanvas" class="studio-canvas" width="1080" height="1920"></canvas></div></div>
+    <div id="studioStatus" class="studio-status">プレビュー再生中</div>
+    <div class="studio-downloads">
+     <a id="studioDownloadVideo" class="studio-action studio-export" download="yurutto-short-video.webm">動画をダウンロード</a>
+     <a id="studioDownloadPoster" class="studio-action studio-ghost" download="yurutto-short-poster.png">サムネ画像をダウンロード</a>
+    </div>
+    <div class="studio-summary">
+     <div class="studio-badges"><span>9:16</span><span>約10秒</span><span>質問1本型</span><span>投稿向けテンプレ</span></div>
+     <div class="studio-field"><label for="studioCaption">投稿文のたたき台</label><textarea id="studioCaption" readonly></textarea><div class="studio-help">質問とキャラに合わせて自動更新されます。投稿前に少しだけ整える想定です。</div></div>
+    </div>
+   </div>
+  </div>
+ </section>
+</div>
+<script>
+const assetVersion='20260606';
+const withAssetVersion=path=>`${path}?v=${assetVersion}`;
+const planets={
+ earth:{planet:'地球',name:'ちきゅまる',img:withAssetVersion('images/chikyumaru.png')},
+ mercury:{planet:'水星',name:'すいすい',img:withAssetVersion('images/suisui.png')},
+ mars:{planet:'火星',name:'かせっち',img:withAssetVersion('images/kasetti.png')},
+ jupiter:{planet:'木星',name:'もくどん',img:withAssetVersion('images/mokudon.png')},
+ venus:{planet:'金星',name:'きらら',img:withAssetVersion('images/kirara.png')},
+ saturn:{planet:'土星',name:'どせたん',img:withAssetVersion('images/dosetan.png')},
+ uranus:{planet:'天王星',name:'てんてん',img:withAssetVersion('images/tenten.png')},
+ neptune:{planet:'海王星',name:'ねぷるん',img:withAssetVersion('images/nepurun.png')}
+};
+const order=['earth','mercury','mars','jupiter','venus','saturn','uranus','neptune'];
+const qs=[['休日、何をして過ごしたい？',[['ゆっくり休む','heal'],['誰かと楽しむ','connect'],['外へ出かける','move'],['好きなことに没頭','axis']]],['友達が落ち込んでいたら？',[['そっと寄り添う','heal'],['良いところを伝える','connect'],['すぐ助けに動く','move'],['別の見方を伝える','axis']]],['みんなの中での役割は？',[['安心できる空気を作る','heal'],['明るく盛り上げる','connect'],['話を進める','move'],['案や計画を考える','axis']]],['うれしいのはどんなとき？',[['ほっと落ち着けたとき','heal'],['喜びを共有できたとき','connect'],['一歩進めたとき','move'],['新しい発見をしたとき','axis']]],['トラブルが起きたら？',[['まず心を落ち着ける','heal'],['誰かに話してみる','connect'],['できることから動く','move'],['原因を考えてみる','axis']]],['言われてうれしいのは？',[['一緒にいるとほっとする','heal'],['明るい気持ちになれる','connect'],['頼りになる','move'],['考え方が素敵','axis']]],['大切にしたいのは？',[['やさしくいること','heal'],['気持ちを伝えること','connect'],['まず一歩進むこと','move'],['自分らしく選ぶこと','axis']]]];
+const $=id=>document.getElementById(id);
+const studioDuration=10;
+const studioCanvas=$('studioCanvas');
+const studioCtx=studioCanvas.getContext('2d');
+const studioState={questionIndex:0,planetKey:'earth',hook:'あなたならどれを選ぶ？',cta:'続きは無料サイトで診断してね\nプロフィールのリンクからチェック',showHandle:true,showPrompt:true};
+let studioPreviewStart=performance.now(),studioPreviewRaf=0,studioRecording=false;
+function easeOutCubic(t){return 1-Math.pow(1-t,3)}
+function clamp(v,min,max){return Math.min(max,Math.max(min,v))}
+function segmentProgress(time,start,duration){return clamp((time-start)/duration,0,1)}
+function drawRoundedRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function wrapLines(ctx,text,maxWidth){const parts=text.split('\n');const lines=[];parts.forEach((part,index)=>{let line='';for(const char of part){const test=line+char;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=char}else line=test}if(line||part==='')lines.push(line);if(index<parts.length-1)lines.push('')});return lines}
+function syncStudioState(){studioState.questionIndex=Number($('studioQuestion').value||0);studioState.planetKey=$('studioPlanet').value||'earth';studioState.hook=$('studioHook').value.trim()||'あなたならどれを選ぶ？';studioState.cta=$('studioCta').value.trim()||'続きは無料サイトで診断してね\nプロフィールのリンクからチェック';studioState.showHandle=$('studioShowHandle').checked;studioState.showPrompt=$('studioShowPrompt').checked;updateStudioCaption()}
+function updateStudioCaption(){const q=qs[studioState.questionIndex];const p=planets[studioState.planetKey];$('studioCaption').value=`${studioState.hook}\n${q[0]}\n\nあなたはどれを選ぶ？ コメントで教えてね。\n${p.name}っぽい人はどれだと思う？\n続きはプロフィールのリンクから無料診断へ ✨\n#ゆるっと惑星占い #心理テスト #診断 #ショート動画`;}
+function populateStudioControls(){$('studioQuestion').innerHTML=qs.map((q,i)=>`<option value="${i}">Q${i+1}｜${q[0]}</option>`).join('');$('studioPlanet').innerHTML=order.map(key=>`<option value="${key}">${planets[key].planet}｜${planets[key].name}</option>`).join('');['studioQuestion','studioPlanet','studioHook','studioCta','studioShowHandle','studioShowPrompt'].forEach(id=>$(id).addEventListener(id.includes('Show')?'change':'input',()=>{syncStudioState();restartStudioPreview()}));$('studioQuestion').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});$('studioPlanet').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});syncStudioState()}
+function restartStudioPreview(){studioPreviewStart=performance.now();$('studioStatus').textContent='プレビュー再生中';drawStudioFrame(0)}
+function drawStudioBackground(ctx,w,h){const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#d8efff');g.addColorStop(.55,'#eef4ff');g.addColorStop(1,'#fff0f7');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.fillStyle='rgba(255,255,255,.45)';ctx.beginPath();ctx.arc(120,180,110,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(w-130,h-180,140,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(238,178,60,.45)';for(let i=0;i<4;i++){const x=120+i*240+(i%2?30:0),y=180+i*380;ctx.save();ctx.translate(x%w,y%h);ctx.rotate(.35);ctx.fillRect(-6,-34,12,68);ctx.fillRect(-34,-6,68,12);ctx.restore()}}
+const studioAssets=Object.fromEntries(order.map(key=>[key,new Image()]));order.forEach(key=>{studioAssets[key].src=planets[key].img});
+function drawStudioFrame(timeSec){const ctx=studioCtx,w=studioCanvas.width,h=studioCanvas.height,q=qs[studioState.questionIndex],planet=planets[studioState.planetKey],introP=easeOutCubic(segmentProgress(timeSec,0,.9)),choicesP=segmentProgress(timeSec,1,5.8),ctaP=easeOutCubic(segmentProgress(timeSec,7.1,1.2));ctx.clearRect(0,0,w,h);drawStudioBackground(ctx,w,h);ctx.fillStyle='rgba(255,255,255,.92)';drawRoundedRect(ctx,72,64,w-144,h-128,52);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=4;ctx.stroke();ctx.textAlign='center';ctx.fillStyle='#755ba2';ctx.font='900 74px var(--display-font)';ctx.fillText(studioState.hook,w/2,220-introP*8);ctx.fillStyle='#6a4fdc';ctx.font='900 118px var(--display-font)';ctx.save();ctx.globalAlpha=.18;ctx.fillText('Q'+(studioState.questionIndex+1),w/2,360);ctx.restore();ctx.fillStyle='#3f2f58';ctx.font='900 92px var(--display-font)';const qLines=wrapLines(ctx,q[0],w-260);qLines.forEach((line,i)=>ctx.fillText(line,w/2,372+i*100));q[1].forEach((choice,index)=>{const delay=index*.23,local=clamp((choicesP-delay)/.32,0,1),y=620+index*176+(1-local)*34;ctx.save();ctx.globalAlpha=local;ctx.fillStyle='rgba(255,255,255,.95)';drawRoundedRect(ctx,118,y,w-236,132,38);ctx.fill();ctx.strokeStyle='rgba(123,92,230,.15)';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='#f1ebff';ctx.beginPath();ctx.arc(182,y+66,34,0,Math.PI*2);ctx.fill();ctx.fillStyle='#6b51bb';ctx.font='900 42px var(--display-font)';ctx.fillText(String.fromCharCode(65+index),182,y+81);ctx.textAlign='left';ctx.fillStyle='#4a3b56';ctx.font='800 48px var(--display-font)';ctx.fillText(choice[0],242,y+80);ctx.textAlign='center';ctx.restore()});const img=studioAssets[studioState.planetKey];if(img?.complete){const bob=Math.sin(timeSec*2.5)*8;ctx.save();ctx.translate(w/2,1470+bob);const size=360;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}ctx.fillStyle='#664fa5';ctx.font='900 54px var(--display-font)';ctx.fillText(`${planet.planet}の「${planet.name}」も気になる？`,w/2,1620);if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font='900 62px var(--display-font)';ctx.fillText('コメントで教えてね',w/2,1700)}ctx.save();ctx.globalAlpha=ctaP;ctx.fillStyle='rgba(118,85,220,.98)';drawRoundedRect(ctx,120,1740,w-240,118,42);ctx.fill();ctx.fillStyle='#fff';ctx.font='900 50px var(--display-font)';const ctaLines=studioState.cta.split('\n');ctaLines.forEach((line,i)=>ctx.fillText(line,w/2,1790+i*48));ctx.restore();if(studioState.showHandle){ctx.fillStyle='#7d7387';ctx.font='800 34px var(--display-font)';ctx.fillText('@yurutto_wakusei_s / saratto0116.github.io',w/2,h-72)}}
+function studioPreviewLoop(now){const elapsed=((now-studioPreviewStart)/1000)%studioDuration;drawStudioFrame(elapsed);if(!studioRecording)studioPreviewRaf=requestAnimationFrame(studioPreviewLoop)}
+async function exportStudioVideo(){if(studioRecording)return;syncStudioState();studioRecording=true;$('studioExport').disabled=true;$('studioReplay').disabled=true;$('studioStatus').textContent='書き出し中… 約10秒';$('studioDownloadVideo').classList.remove('ready');$('studioDownloadPoster').classList.remove('ready');cancelAnimationFrame(studioPreviewRaf);const posterData=studioCanvas.toDataURL('image/png');$('studioDownloadPoster').href=posterData;$('studioDownloadPoster').classList.add('ready');const stream=studioCanvas.captureStream(30);const mimeCandidates=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];const mimeType=mimeCandidates.find(type=>window.MediaRecorder&&MediaRecorder.isTypeSupported(type))||'';if(!mimeType){$('studioStatus').textContent='このブラウザでは動画書き出しに対応していません';studioRecording=false;$('studioExport').disabled=false;$('studioReplay').disabled=false;studioPreviewRaf=requestAnimationFrame(studioPreviewLoop);return}const recorder=new MediaRecorder(stream,mimeType?{mimeType}:undefined);const chunks=[];recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};const fps=30,totalFrames=studioDuration*fps;let frame=0;recorder.start();const timer=setInterval(()=>{drawStudioFrame(frame/fps);frame++;if(frame>totalFrames){clearInterval(timer);recorder.stop()}},1000/fps);recorder.onstop=()=>{const blob=new Blob(chunks,{type:mimeType||'video/webm'}),url=URL.createObjectURL(blob);$('studioDownloadVideo').href=url;$('studioDownloadVideo').download=`yurutto-short-q${studioState.questionIndex+1}.webm`;$('studioDownloadVideo').classList.add('ready');$('studioStatus').textContent='書き出し完了。動画をダウンロードできます';studioRecording=false;$('studioExport').disabled=false;$('studioReplay').disabled=false;restartStudioPreview();studioPreviewRaf=requestAnimationFrame(studioPreviewLoop)}}
+$('studioReplay').onclick=()=>{syncStudioState();restartStudioPreview()};
+$('studioExport').onclick=exportStudioVideo;
+populateStudioControls();
+restartStudioPreview();
+studioPreviewRaf=requestAnimationFrame(studioPreviewLoop);
+</script>
+</body>
+</html>
