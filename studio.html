@@ -170,18 +170,18 @@ function drawStudioFrame(timeSec){
  ctx.strokeStyle='rgba(255,255,255,.98)';ctx.lineWidth=4;ctx.stroke();
 
  ctx.textAlign='center';
- ctx.fillStyle='#755ba2';ctx.font=`900 112px ${studioFont}`;
+ ctx.fillStyle='#755ba2';ctx.font=`900 84px ${studioFont}`;
  ctx.fillText(studioState.hook,w/2,182-introP*10);
 
- ctx.fillStyle='#6a4fdc';ctx.font=`900 80px ${studioFont}`;
- ctx.save();ctx.globalAlpha=.18;ctx.fillText(`Q${studioState.questionIndex+1}`,w/2,284);ctx.restore();
+ ctx.fillStyle='#6a4fdc';ctx.font=`900 62px ${studioFont}`;
+ ctx.save();ctx.globalAlpha=.18;ctx.fillText(`Q${studioState.questionIndex+1}`,w/2,258);ctx.restore();
 
- ctx.fillStyle='#3f2f58';ctx.font=`900 118px ${studioFont}`;
- const qLines=wrapLines(ctx,q[0],w-180);
- drawTextBlock(ctx,qLines,w/2,300,126,'center');
+ ctx.fillStyle='#3f2f58';ctx.font=`900 86px ${studioFont}`;
+ const qLines=wrapLines(ctx,q[0],w-220);
+ drawTextBlock(ctx,qLines,w/2,296,94,'center');
 
  q[1].forEach((choice,index)=>{
-  const delay=index*.15,local=clamp((choicesP-delay)/.26,0,1),y=610+index*190+(1-local)*26;
+  const delay=index*.15,local=clamp((choicesP-delay)/.26,0,1),y=560+index*190+(1-local)*26;
   const x=92,boxW=w-184,boxH=148;
   ctx.save();ctx.globalAlpha=local;
   ctx.fillStyle='rgba(255,255,255,.99)';drawRoundedRect(ctx,x,y,boxW,boxH,40);ctx.fill();
