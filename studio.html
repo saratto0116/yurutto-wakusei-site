@@ -154,13 +154,53 @@ function clamp(v,min,max){return Math.min(max,Math.max(min,v))}
 function segmentProgress(time,start,duration){return clamp((time-start)/duration,0,1)}
 function drawRoundedRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 function wrapLines(ctx,text,maxWidth){const parts=text.split('\n');const lines=[];parts.forEach((part,index)=>{let line='';for(const char of part){const test=line+char;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=char}else line=test}if(line||part==='')lines.push(line);if(index<parts.length-1)lines.push('')});return lines}
+function drawTextBlock(ctx,lines,x,y,lineHeight,align='center'){ctx.textAlign=align;lines.forEach((line,index)=>{ctx.fillText(line,x,y+index*lineHeight)})}
 function syncStudioState(){studioState.questionIndex=Number($('studioQuestion').value||0);studioState.planetKey=$('studioPlanet').value||'earth';studioState.hook=$('studioHook').value.trim()||'あなたならどれを選ぶ？';studioState.cta=$('studioCta').value.trim()||'続きは無料サイトで診断してね\nプロフィールのリンクからチェック';studioState.showHandle=$('studioShowHandle').checked;studioState.showPrompt=$('studioShowPrompt').checked;updateStudioCaption()}
 function updateStudioCaption(){const q=qs[studioState.questionIndex];const p=planets[studioState.planetKey];$('studioCaption').value=`${studioState.hook}\n${q[0]}\n\nあなたはどれを選ぶ？ コメントで教えてね。\n${p.name}っぽい人はどれだと思う？\n続きはプロフィールのリンクから無料診断へ ✨\n#ゆるっと惑星占い #心理テスト #診断 #ショート動画`;}
 function populateStudioControls(){$('studioQuestion').innerHTML=qs.map((q,i)=>`<option value="${i}">Q${i+1}｜${q[0]}</option>`).join('');$('studioPlanet').innerHTML=order.map(key=>`<option value="${key}">${planets[key].planet}｜${planets[key].name}</option>`).join('');['studioQuestion','studioPlanet','studioHook','studioCta','studioShowHandle','studioShowPrompt'].forEach(id=>$(id).addEventListener(id.includes('Show')?'change':'input',()=>{syncStudioState();restartStudioPreview()}));$('studioQuestion').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});$('studioPlanet').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});syncStudioState()}
 function restartStudioPreview(){studioPreviewStart=performance.now();$('studioStatus').textContent='プレビュー再生中';drawStudioFrame(0)}
 function drawStudioBackground(ctx,w,h){const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#d8efff');g.addColorStop(.55,'#eef4ff');g.addColorStop(1,'#fff0f7');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.fillStyle='rgba(255,255,255,.45)';ctx.beginPath();ctx.arc(120,180,110,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(w-130,h-180,140,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(238,178,60,.45)';for(let i=0;i<4;i++){const x=120+i*240+(i%2?30:0),y=180+i*380;ctx.save();ctx.translate(x%w,y%h);ctx.rotate(.35);ctx.fillRect(-6,-34,12,68);ctx.fillRect(-34,-6,68,12);ctx.restore()}}
 const studioAssets=Object.fromEntries(order.map(key=>[key,new Image()]));order.forEach(key=>{studioAssets[key].src=planets[key].img});
-function drawStudioFrame(timeSec){const ctx=studioCtx,w=studioCanvas.width,h=studioCanvas.height,q=qs[studioState.questionIndex],planet=planets[studioState.planetKey],introP=easeOutCubic(segmentProgress(timeSec,0,.9)),choicesP=segmentProgress(timeSec,1,5.8),ctaP=easeOutCubic(segmentProgress(timeSec,7.1,1.2));ctx.clearRect(0,0,w,h);drawStudioBackground(ctx,w,h);ctx.fillStyle='rgba(255,255,255,.92)';drawRoundedRect(ctx,72,64,w-144,h-128,52);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=4;ctx.stroke();ctx.textAlign='center';ctx.fillStyle='#755ba2';ctx.font='900 74px var(--display-font)';ctx.fillText(studioState.hook,w/2,220-introP*8);ctx.fillStyle='#6a4fdc';ctx.font='900 118px var(--display-font)';ctx.save();ctx.globalAlpha=.18;ctx.fillText('Q'+(studioState.questionIndex+1),w/2,360);ctx.restore();ctx.fillStyle='#3f2f58';ctx.font='900 92px var(--display-font)';const qLines=wrapLines(ctx,q[0],w-260);qLines.forEach((line,i)=>ctx.fillText(line,w/2,372+i*100));q[1].forEach((choice,index)=>{const delay=index*.23,local=clamp((choicesP-delay)/.32,0,1),y=620+index*176+(1-local)*34;ctx.save();ctx.globalAlpha=local;ctx.fillStyle='rgba(255,255,255,.95)';drawRoundedRect(ctx,118,y,w-236,132,38);ctx.fill();ctx.strokeStyle='rgba(123,92,230,.15)';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='#f1ebff';ctx.beginPath();ctx.arc(182,y+66,34,0,Math.PI*2);ctx.fill();ctx.fillStyle='#6b51bb';ctx.font='900 42px var(--display-font)';ctx.fillText(String.fromCharCode(65+index),182,y+81);ctx.textAlign='left';ctx.fillStyle='#4a3b56';ctx.font='800 48px var(--display-font)';ctx.fillText(choice[0],242,y+80);ctx.textAlign='center';ctx.restore()});const img=studioAssets[studioState.planetKey];if(img?.complete){const bob=Math.sin(timeSec*2.5)*8;ctx.save();ctx.translate(w/2,1470+bob);const size=360;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}ctx.fillStyle='#664fa5';ctx.font='900 54px var(--display-font)';ctx.fillText(`${planet.planet}の「${planet.name}」も気になる？`,w/2,1620);if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font='900 62px var(--display-font)';ctx.fillText('コメントで教えてね',w/2,1700)}ctx.save();ctx.globalAlpha=ctaP;ctx.fillStyle='rgba(118,85,220,.98)';drawRoundedRect(ctx,120,1740,w-240,118,42);ctx.fill();ctx.fillStyle='#fff';ctx.font='900 50px var(--display-font)';const ctaLines=studioState.cta.split('\n');ctaLines.forEach((line,i)=>ctx.fillText(line,w/2,1790+i*48));ctx.restore();if(studioState.showHandle){ctx.fillStyle='#7d7387';ctx.font='800 34px var(--display-font)';ctx.fillText('@yurutto_wakusei_s / saratto0116.github.io',w/2,h-72)}}
+function drawStudioFrame(timeSec){
+ const ctx=studioCtx,w=studioCanvas.width,h=studioCanvas.height,q=qs[studioState.questionIndex],planet=planets[studioState.planetKey];
+ const introP=easeOutCubic(segmentProgress(timeSec,0,.9)),choicesP=segmentProgress(timeSec,1,5.8),ctaP=easeOutCubic(segmentProgress(timeSec,7.1,1.2));
+ ctx.clearRect(0,0,w,h);drawStudioBackground(ctx,w,h);
+ ctx.fillStyle='rgba(255,255,255,.94)';drawRoundedRect(ctx,64,56,w-128,h-112,56);ctx.fill();
+ ctx.strokeStyle='rgba(255,255,255,.98)';ctx.lineWidth=4;ctx.stroke();
+ ctx.textAlign='center';
+ ctx.fillStyle='#755ba2';ctx.font='900 88px var(--display-font)';
+ ctx.fillText(studioState.hook,w/2,212-introP*10);
+ ctx.fillStyle='#6a4fdc';ctx.font='900 108px var(--display-font)';
+ ctx.save();ctx.globalAlpha=.14;ctx.fillText('Q'+(studioState.questionIndex+1),w/2,332);ctx.restore();
+ ctx.fillStyle='#3f2f58';ctx.font='900 108px var(--display-font)';
+ const qLines=wrapLines(ctx,q[0],w-220);
+ drawTextBlock(ctx,qLines,w/2,350,114,'center');
+ q[1].forEach((choice,index)=>{
+  const delay=index*.2,local=clamp((choicesP-delay)/.3,0,1),baseY=640+index*188,y=baseY+(1-local)*34;
+  const isLeft=index%2===0,x=isLeft?88:w/2+12,boxW=w/2-100,boxH=156;
+  ctx.save();ctx.globalAlpha=local;
+  ctx.fillStyle='rgba(255,255,255,.98)';drawRoundedRect(ctx,x,y,boxW,boxH,40);ctx.fill();
+  ctx.strokeStyle='rgba(123,92,230,.14)';ctx.lineWidth=3;ctx.stroke();
+  ctx.fillStyle='#f2ecff';drawRoundedRect(ctx,x+18,y+18,78,78,26);ctx.fill();
+  ctx.fillStyle='#6b51bb';ctx.font='900 46px var(--display-font)';ctx.textAlign='center';ctx.fillText(String.fromCharCode(65+index),x+57,y+72);
+  ctx.fillStyle='#4a3b56';ctx.font='900 60px var(--display-font)';ctx.textAlign='left';
+  const optionLines=wrapLines(ctx,choice[0],boxW-132);
+  optionLines.slice(0,2).forEach((line,lineIndex)=>ctx.fillText(line,x+118,y+68+lineIndex*58));
+  ctx.restore()
+ });
+ const img=studioAssets[studioState.planetKey];
+ if(img?.complete){const bob=Math.sin(timeSec*2.5)*8;ctx.save();ctx.translate(w/2,1490+bob);const size=280;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}
+ ctx.fillStyle='#664fa5';ctx.font='900 46px var(--display-font)';ctx.textAlign='center';
+ ctx.fillText(`${planet.planet}の「${planet.name}」が気になる？`,w/2,1660);
+ if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font='900 68px var(--display-font)';ctx.fillText('コメントで教えてね',w/2,1738)}
+ ctx.save();ctx.globalAlpha=ctaP;
+ ctx.fillStyle='rgba(118,85,220,.98)';drawRoundedRect(ctx,108,1770,w-216,110,40);ctx.fill();
+ ctx.fillStyle='#fff';ctx.font='900 46px var(--display-font)';
+ const ctaLines=studioState.cta.split('\n');
+ ctaLines.forEach((line,i)=>ctx.fillText(line,w/2,1814+i*42));
+ ctx.restore();
+ if(studioState.showHandle){ctx.fillStyle='#7d7387';ctx.font='800 30px var(--display-font)';ctx.fillText('@yurutto_wakusei_s / saratto0116.github.io',w/2,h-54)}
+}
 function studioPreviewLoop(now){const elapsed=((now-studioPreviewStart)/1000)%studioDuration;drawStudioFrame(elapsed);if(!studioRecording)studioPreviewRaf=requestAnimationFrame(studioPreviewLoop)}
 async function exportStudioVideo(){if(studioRecording)return;syncStudioState();studioRecording=true;$('studioExport').disabled=true;$('studioReplay').disabled=true;$('studioStatus').textContent='書き出し中… 約10秒';$('studioDownloadVideo').classList.remove('ready');$('studioDownloadPoster').classList.remove('ready');cancelAnimationFrame(studioPreviewRaf);const posterData=studioCanvas.toDataURL('image/png');$('studioDownloadPoster').href=posterData;$('studioDownloadPoster').classList.add('ready');const stream=studioCanvas.captureStream(30);const mimeCandidates=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];const mimeType=mimeCandidates.find(type=>window.MediaRecorder&&MediaRecorder.isTypeSupported(type))||'';if(!mimeType){$('studioStatus').textContent='このブラウザでは動画書き出しに対応していません';studioRecording=false;$('studioExport').disabled=false;$('studioReplay').disabled=false;studioPreviewRaf=requestAnimationFrame(studioPreviewLoop);return}const recorder=new MediaRecorder(stream,mimeType?{mimeType}:undefined);const chunks=[];recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};const fps=30,totalFrames=studioDuration*fps;let frame=0;recorder.start();const timer=setInterval(()=>{drawStudioFrame(frame/fps);frame++;if(frame>totalFrames){clearInterval(timer);recorder.stop()}},1000/fps);recorder.onstop=()=>{const blob=new Blob(chunks,{type:mimeType||'video/webm'}),url=URL.createObjectURL(blob);$('studioDownloadVideo').href=url;$('studioDownloadVideo').download=`yurutto-short-q${studioState.questionIndex+1}.webm`;$('studioDownloadVideo').classList.add('ready');$('studioStatus').textContent='書き出し完了。動画をダウンロードできます';studioRecording=false;$('studioExport').disabled=false;$('studioReplay').disabled=false;restartStudioPreview();studioPreviewRaf=requestAnimationFrame(studioPreviewLoop)}}
 $('studioReplay').onclick=()=>{syncStudioState();restartStudioPreview()};
