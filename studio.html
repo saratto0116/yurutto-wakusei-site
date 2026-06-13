@@ -149,6 +149,7 @@ const studioCanvas=$('studioCanvas');
 const studioCtx=studioCanvas.getContext('2d');
 const studioState={questionIndex:0,planetKey:'earth',hook:'あなたならどれを選ぶ？',cta:'続きは無料サイトで診断してね\nプロフィールのリンクからチェック',showHandle:true,showPrompt:true};
 let studioPreviewStart=performance.now(),studioPreviewRaf=0,studioRecording=false;
+const studioFont='"Hiragino Maru Gothic ProN","Yu Gothic","Arial Rounded MT Bold",sans-serif';
 function easeOutCubic(t){return 1-Math.pow(1-t,3)}
 function clamp(v,min,max){return Math.min(max,Math.max(min,v))}
 function segmentProgress(time,start,duration){return clamp((time-start)/duration,0,1)}
@@ -169,13 +170,13 @@ function drawStudioFrame(timeSec){
  ctx.strokeStyle='rgba(255,255,255,.98)';ctx.lineWidth=4;ctx.stroke();
 
  ctx.textAlign='center';
- ctx.fillStyle='#755ba2';ctx.font='900 112px var(--display-font)';
+ ctx.fillStyle='#755ba2';ctx.font=`900 112px ${studioFont}`;
  ctx.fillText(studioState.hook,w/2,182-introP*10);
 
- ctx.fillStyle='#6a4fdc';ctx.font='900 80px var(--display-font)';
+ ctx.fillStyle='#6a4fdc';ctx.font=`900 80px ${studioFont}`;
  ctx.save();ctx.globalAlpha=.18;ctx.fillText(`Q${studioState.questionIndex+1}`,w/2,284);ctx.restore();
 
- ctx.fillStyle='#3f2f58';ctx.font='900 118px var(--display-font)';
+ ctx.fillStyle='#3f2f58';ctx.font=`900 118px ${studioFont}`;
  const qLines=wrapLines(ctx,q[0],w-180);
  drawTextBlock(ctx,qLines,w/2,300,126,'center');
 
@@ -186,8 +187,8 @@ function drawStudioFrame(timeSec){
   ctx.fillStyle='rgba(255,255,255,.99)';drawRoundedRect(ctx,x,y,boxW,boxH,40);ctx.fill();
   ctx.strokeStyle='rgba(123,92,230,.16)';ctx.lineWidth=3;ctx.stroke();
   ctx.fillStyle='#f2ecff';drawRoundedRect(ctx,x+20,y+20,86,86,28);ctx.fill();
-  ctx.fillStyle='#6b51bb';ctx.font='900 50px var(--display-font)';ctx.textAlign='center';ctx.fillText(String.fromCharCode(65+index),x+63,y+78);
-  ctx.fillStyle='#4a3b56';ctx.font='900 60px var(--display-font)';ctx.textAlign='left';
+  ctx.fillStyle='#6b51bb';ctx.font=`900 50px ${studioFont}`;ctx.textAlign='center';ctx.fillText(String.fromCharCode(65+index),x+63,y+78);
+  ctx.fillStyle='#4a3b56';ctx.font=`900 60px ${studioFont}`;ctx.textAlign='left';
   const optionLines=wrapLines(ctx,choice[0],boxW-150).slice(0,2);
   optionLines.forEach((line,lineIndex)=>ctx.fillText(line,x+132,y+72+lineIndex*54));
   ctx.restore();
@@ -196,18 +197,18 @@ function drawStudioFrame(timeSec){
  const img=studioAssets[studioState.planetKey];
  if(img?.complete){const bob=Math.sin(timeSec*2.5)*7;ctx.save();ctx.translate(w/2,1472+bob);const size=240;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}
 
- ctx.fillStyle='#664fa5';ctx.font='900 42px var(--display-font)';ctx.textAlign='center';
+ ctx.fillStyle='#664fa5';ctx.font=`900 42px ${studioFont}`;ctx.textAlign='center';
  ctx.fillText(`${planet.planet}の「${planet.name}」が気になる？`,w/2,1618);
- if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font='900 60px var(--display-font)';ctx.fillText('コメントで教えてね',w/2,1694)}
+ if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font=`900 60px ${studioFont}`;ctx.fillText('コメントで教えてね',w/2,1694)}
 
  ctx.save();ctx.globalAlpha=ctaP;
  ctx.fillStyle='rgba(118,85,220,.98)';drawRoundedRect(ctx,98,1754,w-196,106,38);ctx.fill();
- ctx.fillStyle='#fff';ctx.font='900 42px var(--display-font)';
+ ctx.fillStyle='#fff';ctx.font=`900 42px ${studioFont}`;
  const ctaLines=studioState.cta.split('\n').slice(0,2);
  ctaLines.forEach((line,i)=>ctx.fillText(line,w/2,1796+i*38));
  ctx.restore();
 
- if(studioState.showHandle){ctx.fillStyle='#7d7387';ctx.font='800 28px var(--display-font)';ctx.fillText('@yurutto_wakusei_s / saratto0116.github.io',w/2,h-48)}
+ if(studioState.showHandle){ctx.fillStyle='#7d7387';ctx.font=`800 28px ${studioFont}`;ctx.fillText('@yurutto_wakusei_s / saratto0116.github.io',w/2,h-48)}
 }
 function studioPreviewLoop(now){const elapsed=((now-studioPreviewStart)/1000)%studioDuration;drawStudioFrame(elapsed);if(!studioRecording)studioPreviewRaf=requestAnimationFrame(studioPreviewLoop)}
 async function exportStudioVideo(){if(studioRecording)return;syncStudioState();studioRecording=true;$('studioExport').disabled=true;$('studioReplay').disabled=true;$('studioStatus').textContent='書き出し中… 約10秒';$('studioDownloadVideo').classList.remove('ready');$('studioDownloadPoster').classList.remove('ready');cancelAnimationFrame(studioPreviewRaf);const posterData=studioCanvas.toDataURL('image/png');$('studioDownloadPoster').href=posterData;$('studioDownloadPoster').classList.add('ready');const stream=studioCanvas.captureStream(30);const mimeCandidates=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];const mimeType=mimeCandidates.find(type=>window.MediaRecorder&&MediaRecorder.isTypeSupported(type))||'';if(!mimeType){$('studioStatus').textContent='このブラウザでは動画書き出しに対応していません';studioRecording=false;$('studioExport').disabled=false;$('studioReplay').disabled=false;studioPreviewRaf=requestAnimationFrame(studioPreviewLoop);return}const recorder=new MediaRecorder(stream,mimeType?{mimeType}:undefined);const chunks=[];recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};const fps=30,totalFrames=studioDuration*fps;let frame=0;recorder.start();const timer=setInterval(()=>{drawStudioFrame(frame/fps);frame++;if(frame>totalFrames){clearInterval(timer);recorder.stop()}},1000/fps);recorder.onstop=()=>{const blob=new Blob(chunks,{type:mimeType||'video/webm'}),url=URL.createObjectURL(blob);$('studioDownloadVideo').href=url;$('studioDownloadVideo').download=`yurutto-short-q${studioState.questionIndex+1}.webm`;$('studioDownloadVideo').classList.add('ready');$('studioStatus').textContent='書き出し完了。動画をダウンロードできます';studioRecording=false;$('studioExport').disabled=false;$('studioReplay').disabled=false;restartStudioPreview();studioPreviewRaf=requestAnimationFrame(studioPreviewLoop)}}
