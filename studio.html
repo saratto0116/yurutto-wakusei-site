@@ -188,7 +188,7 @@ function drawStudioFrame(timeSec){
  drawTextBlock(ctx,qLines,w/2,296,94,'center');
 
  q[1].forEach((choice,index)=>{
-  const delay=index*.15,local=clamp((choicesP-delay)/.26,0,1),y=516+index*182+(1-local)*24;
+  const delay=index*.15,local=clamp((choicesP-delay)/.26,0,1),y=486+index*180+(1-local)*22;
   const x=92,boxW=w-184,boxH=148;
   ctx.save();ctx.globalAlpha=local;
   const cardGradient=ctx.createLinearGradient(x,y,x+boxW,y+boxH);
@@ -205,11 +205,11 @@ function drawStudioFrame(timeSec){
  });
 
  const img=studioAssets[studioState.planetKey];
- if(img?.complete){const bob=Math.sin(timeSec*2.5)*7;ctx.save();ctx.translate(w/2,1368+bob);const size=248;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}
+ if(img?.complete){const bob=Math.sin(timeSec*2.5)*7;ctx.save();ctx.translate(w/2,1308+bob);const size=248;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}
 
  ctx.fillStyle='#664fa5';ctx.font=`900 44px ${studioFont}`;ctx.textAlign='center';
- ctx.fillText(`${planet.planet}の「${planet.name}」が気になる？`,w/2,1498);
- if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font=`900 60px ${studioFont}`;ctx.fillText('コメントで教えてね',w/2,1586)}
+ ctx.fillText(`${planet.planet}の「${planet.name}」が気になる？`,w/2,1438);
+ if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font=`900 60px ${studioFont}`;ctx.fillText('コメントで教えてね',w/2,1528)}
 
  ctx.save();ctx.globalAlpha=ctaP;
  const ctaGradient=ctx.createLinearGradient(98,1668,w-98,1774);
