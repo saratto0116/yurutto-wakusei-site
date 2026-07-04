@@ -257,11 +257,11 @@ function drawStudioFrame(timeSec){
  });
 
  const img=studioAssets[studioState.planetKey];
- if(img?.complete){const bob=Math.sin(timeSec*2.5)*7;ctx.save();ctx.translate(w/2,1308+bob);const size=248;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}
+ if(img?.complete){const bob=Math.sin(timeSec*2.5)*7;ctx.save();ctx.translate(w/2,1336+bob);const size=248;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}
 
  ctx.fillStyle='#664fa5';ctx.font=`900 44px ${studioFont}`;ctx.textAlign='center';
- ctx.fillText(fillPlanetLine(studioState.planetLine,planet),w/2,1466);
- if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font=`900 60px ${studioFont}`;ctx.fillText('コメントで教えてね',w/2,1562)}
+ ctx.fillText(fillPlanetLine(studioState.planetLine,planet),w/2,1494);
+ if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font=`900 60px ${studioFont}`;ctx.fillText('コメントで教えてね',w/2,1590)}
 
  ctx.save();ctx.globalAlpha=ctaP;
  const ctaGradient=ctx.createLinearGradient(98,1668,w-98,1774);
