@@ -65,6 +65,7 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
  font-size:15px;font-weight:900;cursor:pointer;min-height:52px
 }
 .studio-export{background:linear-gradient(110deg,#ff8f70,#ff5f92);color:#fff}
+.studio-export-alt{background:linear-gradient(110deg,#7655dc,#9369df);color:#fff}
 .studio-ghost{background:#fff;color:#654d93;border:1px solid #ddd0ed}
 .studio-device{width:min(100%,420px);padding:12px;border-radius:34px;background:#2c2340;box-shadow:0 26px 48px rgba(56,39,72,.2)}
 .studio-screen{overflow:hidden;border-radius:26px;background:#fff6fb;border:4px solid rgba(255,255,255,.22)}
@@ -111,9 +112,10 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
     </div>
     <div class="studio-actions">
      <button id="studioReplay" class="studio-action studio-ghost">プレビューを再生</button>
-     <button id="studioExport" class="studio-action studio-export">動画を書き出す</button>
+     <button id="studioExportMp4" class="studio-action studio-export">MP4を書き出す</button>
+     <button id="studioExportWebm" class="studio-action studio-export-alt">WebMを書き出す</button>
     </div>
-    <p class="studio-note">書き出し形式は WebM です。軽いMVPとして、依存なし・ブラウザ完結に寄せています。</p>
+    <p class="studio-note">MP4 はブラウザ内変換で書き出します。初回のみ変換エンジンの読み込みで少し時間がかかります。</p>
    </div>
    <div class="studio-preview">
     <div class="studio-device"><div class="studio-screen"><canvas id="studioCanvas" class="studio-canvas" width="1080" height="1920"></canvas></div></div>
@@ -122,7 +124,8 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
      <div id="studioVersion" class="studio-version">Studio v2026.07.04.1</div>
     </div>
     <div class="studio-downloads">
-     <a id="studioDownloadVideo" class="studio-action studio-export" download="yurutto-short-video.webm">動画をダウンロード</a>
+     <a id="studioDownloadMp4" class="studio-action studio-export" download="yurutto-short-video.mp4">MP4をダウンロード</a>
+     <a id="studioDownloadWebm" class="studio-action studio-export-alt" download="yurutto-short-video.webm">WebMをダウンロード</a>
      <a id="studioDownloadPoster" class="studio-action studio-ghost" download="yurutto-short-poster.png">サムネ画像をダウンロード</a>
     </div>
     <div class="studio-summary">
@@ -135,7 +138,7 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
 </div>
 <script>
 const assetVersion='20260606';
-const studioVersion='2026.07.04.3';
+const studioVersion='2026.07.04.4';
 const withAssetVersion=path=>`${path}?v=${assetVersion}`;
 const planets={
  earth:{planet:'地球',name:'ちきゅまる',img:withAssetVersion('images/chikyumaru.png')},
@@ -187,6 +190,7 @@ const studioCanvas=$('studioCanvas');
 const studioCtx=studioCanvas.getContext('2d');
 const studioState={questionIndex:0,planetKey:'earth',hook:'ゆるっと惑星占い',planetLine:'あなたはどれを選んだ？',cta:'答えは概要欄を今すぐチェック！',showHandle:true,showPrompt:true};
 let studioPreviewStart=performance.now(),studioPreviewRaf=0,studioRecording=false;
+let ffmpegBundlePromise=null,ffmpegTranscoder=null,ffmpegFetchFile=null;
 const studioFont='"Hiragino Maru Gothic ProN","Yu Gothic","Arial Rounded MT Bold",sans-serif';
 const optionPalettes=[
  {card:'rgba(255,239,247,.99)',chip:'#ffdced',letter:'#d35b98'},
@@ -203,6 +207,9 @@ function drawTextBlock(ctx,lines,x,y,lineHeight,align='center'){ctx.textAlign=al
 function updateStudioVersionBadge(){$('studioVersion').textContent=`Studio v${studioVersion}`}
 function fillPlanetLine(template){return template||'あなたはどれを選んだ？'}
 function syncStudioState(){studioState.questionIndex=Number($('studioQuestion').value||0);studioState.planetKey=$('studioPlanet').value||'earth';studioState.hook=$('studioHook').value.trim()||'ゆるっと惑星占い';studioState.planetLine=$('studioPlanetLine').value.trim()||'あなたはどれを選んだ？';studioState.cta=$('studioCta').value.trim()||'答えは概要欄を今すぐチェック！';studioState.showHandle=$('studioShowHandle').checked;studioState.showPrompt=$('studioShowPrompt').checked;updateStudioCaption()}
+function setStudioActionDisabled(disabled){['studioReplay','studioExportMp4','studioExportWebm'].forEach(id=>$(id).disabled=disabled)}
+function clearStudioDownloadStates(){['studioDownloadMp4','studioDownloadWebm','studioDownloadPoster'].forEach(id=>$(id).classList.remove('ready'))}
+function downloadStudioBlob(anchorId,blob,filename){const url=URL.createObjectURL(blob),anchor=$(anchorId);anchor.href=url;anchor.download=filename;anchor.classList.add('ready');anchor.click()}
 function updateStudioCaption(){const q=qs[studioState.questionIndex];const p=planets[studioState.planetKey];$('studioCaption').value=`${studioState.hook}\n${q[0]}\n\nあなたはどれを選ぶ？ コメントで教えてね。\n${p.name}っぽい人はどれだと思う？\n続きはプロフィールのリンクから無料診断へ ✨\n#ゆるっと惑星占い #心理テスト #診断 #ショート動画`;}
 function populateStudioControls(){$('studioQuestion').innerHTML=qs.map((q,i)=>`<option value="${i}">Q${i+1}｜${q[0]}</option>`).join('');$('studioPlanet').innerHTML=order.map(key=>`<option value="${key}">${planets[key].planet}｜${planets[key].name}</option>`).join('');['studioQuestion','studioPlanet','studioHook','studioPlanetLine','studioCta','studioShowHandle','studioShowPrompt'].forEach(id=>$(id).addEventListener(id.includes('Show')?'change':'input',()=>{syncStudioState();restartStudioPreview()}));$('studioQuestion').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});$('studioPlanet').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});syncStudioState()}
 function restartStudioPreview(){studioPreviewStart=performance.now();$('studioStatus').textContent='プレビュー再生中';drawStudioFrame(0)}
@@ -280,60 +287,60 @@ function drawStudioFrame(timeSec){
 function studioPreviewLoop(now){const elapsed=((now-studioPreviewStart)/1000)%studioDuration;drawStudioFrame(elapsed);if(!studioRecording)studioPreviewRaf=requestAnimationFrame(studioPreviewLoop)}
 function resetStudioExportUi(statusText){
  studioRecording=false;
- $('studioExport').disabled=false;
- $('studioReplay').disabled=false;
+ setStudioActionDisabled(false);
  $('studioStatus').textContent=statusText;
  restartStudioPreview();
  studioPreviewRaf=requestAnimationFrame(studioPreviewLoop);
 }
-async function exportStudioVideo(){
- if(studioRecording)return;
+async function ensureFfmpegReady(){
+ if(ffmpegTranscoder&&ffmpegFetchFile)return{ffmpeg:ffmpegTranscoder,fetchFile:ffmpegFetchFile};
+ if(!ffmpegBundlePromise){
+  ffmpegBundlePromise=(async()=>{
+   const [{FFmpeg},{fetchFile,toBlobURL}]=await Promise.all([
+    import('./vendor/ffmpeg/ffmpeg/index.js'),
+    import('./vendor/ffmpeg/util/index.js')
+   ]);
+   const ffmpeg=new FFmpeg();
+   const coreBase='./vendor/ffmpeg/core';
+   await ffmpeg.load({
+    coreURL:await toBlobURL(`${coreBase}/ffmpeg-core.js`,'text/javascript'),
+    wasmURL:await toBlobURL(`${coreBase}/ffmpeg-core.wasm`,'application/wasm')
+   });
+   ffmpegTranscoder=ffmpeg;
+   ffmpegFetchFile=fetchFile;
+   return{ffmpeg,fetchFile};
+  })().catch(error=>{ffmpegBundlePromise=null;throw error});
+ }
+ return ffmpegBundlePromise;
+}
+async function captureStudioVideoBlob(){
  syncStudioState();
  studioRecording=true;
- $('studioExport').disabled=true;
- $('studioReplay').disabled=true;
+ setStudioActionDisabled(true);
+ clearStudioDownloadStates();
  $('studioStatus').textContent='書き出し準備中…';
- $('studioDownloadVideo').classList.remove('ready');
- $('studioDownloadPoster').classList.remove('ready');
  cancelAnimationFrame(studioPreviewRaf);
- try{
-  const posterData=studioCanvas.toDataURL('image/png');
-  $('studioDownloadPoster').href=posterData;
-  $('studioDownloadPoster').classList.add('ready');
-  if(typeof studioCanvas.captureStream!=='function'){
-   resetStudioExportUi('このブラウザでは動画書き出しに対応していません');
-   return;
-  }
-  if(typeof window.MediaRecorder==='undefined'){
-   resetStudioExportUi('このブラウザでは動画書き出しに対応していません');
-   return;
-  }
+ const posterData=studioCanvas.toDataURL('image/png');
+ $('studioDownloadPoster').href=posterData;
+ $('studioDownloadPoster').classList.add('ready');
+ if(typeof studioCanvas.captureStream!=='function'||typeof window.MediaRecorder==='undefined')throw new Error('このブラウザでは動画書き出しに対応していません');
+ return new Promise((resolve,reject)=>{
   const stream=studioCanvas.captureStream(30);
-  const mimeCandidates=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
+  const mimeCandidates=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
   const supportsType=typeof MediaRecorder.isTypeSupported==='function';
-  const mimeType=supportsType?(mimeCandidates.find(type=>MediaRecorder.isTypeSupported(type))||''):'';
-  const recorderOptions=mimeType?{mimeType}:undefined;
-  const recorder=new MediaRecorder(stream,recorderOptions);
+  const mimeType=supportsType?(mimeCandidates.find(type=>MediaRecorder.isTypeSupported(type))||'video/webm'):'video/webm';
+  const recorder=new MediaRecorder(stream,mimeType?{mimeType}:undefined);
   const chunks=[];
-  $('studioStatus').textContent='書き出し中… 約10秒';
-  recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
-  recorder.onerror=()=>resetStudioExportUi('書き出しに失敗しました。ブラウザを再読み込みして再試行してください');
-  recorder.onstop=()=>{
-   if(!chunks.length){
-    resetStudioExportUi('動画データを取得できませんでした。再試行してください');
-    return;
-   }
-   const extension=(mimeType&&mimeType.includes('mp4'))?'mp4':'webm';
-   const blob=new Blob(chunks,{type:mimeType||'video/webm'});
-   const url=URL.createObjectURL(blob);
-   $('studioDownloadVideo').href=url;
-   $('studioDownloadVideo').download=`yurutto-short-q${studioState.questionIndex+1}.${extension}`;
-   $('studioDownloadVideo').classList.add('ready');
-   $('studioDownloadVideo').click();
-   resetStudioExportUi('書き出し完了。動画をダウンロードしました');
-  };
   const fps=30,totalFrames=studioDuration*fps;
   let frame=0;
+  $('studioStatus').textContent='動画を書き出し中… 約10秒';
+  recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
+  recorder.onerror=()=>reject(new Error('動画の書き出しに失敗しました'));
+  recorder.onstop=()=>{
+   stream.getTracks().forEach(track=>track.stop());
+   if(!chunks.length){reject(new Error('動画データを取得できませんでした'));return}
+   resolve({blob:new Blob(chunks,{type:mimeType||'video/webm'}),mimeType});
+  };
   recorder.start();
   const timer=setInterval(()=>{
    drawStudioFrame(frame/fps);
@@ -343,13 +350,46 @@ async function exportStudioVideo(){
     if(recorder.state!=='inactive')recorder.stop();
    }
   },1000/fps);
+ });
+}
+async function exportStudioWebm(){
+ if(studioRecording)return;
+ try{
+  const {blob}=await captureStudioVideoBlob();
+  downloadStudioBlob('studioDownloadWebm',blob,`yurutto-short-q${studioState.questionIndex+1}.webm`);
+  resetStudioExportUi('WebMを書き出しました');
  }catch(error){
   console.error(error);
-  resetStudioExportUi('書き出しに失敗しました。ブラウザを再読み込みして再試行してください');
+  resetStudioExportUi(error.message||'書き出しに失敗しました。ブラウザを再読み込みして再試行してください');
+ }
+}
+async function exportStudioMp4(){
+ if(studioRecording)return;
+ try{
+  const {blob}=await captureStudioVideoBlob();
+  $('studioStatus').textContent='MP4変換エンジンを読み込み中… 初回のみ少し時間がかかります';
+  const {ffmpeg,fetchFile}=await ensureFfmpegReady();
+  $('studioStatus').textContent='MP4に変換中…';
+  const inputName=`input-${Date.now()}.webm`;
+  const outputName=`output-${Date.now()}.mp4`;
+  await ffmpeg.writeFile(inputName,await fetchFile(blob));
+  await ffmpeg.exec(['-i',inputName,'-movflags','+faststart',outputName]);
+  const data=await ffmpeg.readFile(outputName);
+  const mp4Blob=new Blob([data.buffer],{type:'video/mp4'});
+  downloadStudioBlob('studioDownloadMp4',mp4Blob,`yurutto-short-q${studioState.questionIndex+1}.mp4`);
+  if(ffmpeg.deleteFile){
+   await ffmpeg.deleteFile(inputName);
+   await ffmpeg.deleteFile(outputName);
+  }
+  resetStudioExportUi('MP4を書き出しました');
+ }catch(error){
+  console.error(error);
+  resetStudioExportUi('MP4変換に失敗しました。初回は少し待ってから再試行してください');
  }
 }
 $('studioReplay').onclick=()=>{syncStudioState();restartStudioPreview()};
-$('studioExport').onclick=exportStudioVideo;
+$('studioExportMp4').onclick=exportStudioMp4;
+$('studioExportWebm').onclick=exportStudioWebm;
 populateStudioControls();
 updateStudioVersionBadge();
 restartStudioPreview();
