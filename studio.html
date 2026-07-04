@@ -99,6 +99,7 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
      <div class="studio-field"><label for="studioQuestion">使う質問</label><select id="studioQuestion"></select></div>
      <div class="studio-field"><label for="studioPlanet">メインに出すキャラ</label><select id="studioPlanet"></select></div>
      <div class="studio-field"><label for="studioHook">冒頭フック</label><input id="studioHook" type="text" value="あなたならどれを選ぶ？"></div>
+     <div class="studio-field"><label for="studioPlanetLine">キャラ誘導文</label><input id="studioPlanetLine" type="text" value="{planet}の「{name}」が気になる？"><div class="studio-help">{planet} と {name} を使うと、選んだキャラに合わせて自動で置き換わります。</div></div>
      <div class="studio-field"><label for="studioCta">ラストの案内</label><textarea id="studioCta">続きは無料サイトで診断してね
 プロフィールのリンクからチェック</textarea></div>
      <div class="studio-field">
@@ -153,7 +154,7 @@ const $=id=>document.getElementById(id);
 const studioDuration=10;
 const studioCanvas=$('studioCanvas');
 const studioCtx=studioCanvas.getContext('2d');
-const studioState={questionIndex:0,planetKey:'earth',hook:'あなたならどれを選ぶ？',cta:'続きは無料サイトで診断してね\nプロフィールのリンクからチェック',showHandle:true,showPrompt:true};
+const studioState={questionIndex:0,planetKey:'earth',hook:'あなたならどれを選ぶ？',planetLine:'{planet}の「{name}」が気になる？',cta:'続きは無料サイトで診断してね\nプロフィールのリンクからチェック',showHandle:true,showPrompt:true};
 let studioPreviewStart=performance.now(),studioPreviewRaf=0,studioRecording=false;
 const studioFont='"Hiragino Maru Gothic ProN","Yu Gothic","Arial Rounded MT Bold",sans-serif';
 const optionPalettes=[
@@ -169,9 +170,10 @@ function drawRoundedRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.ar
 function wrapLines(ctx,text,maxWidth){const parts=text.split('\n');const lines=[];parts.forEach((part,index)=>{let line='';for(const char of part){const test=line+char;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=char}else line=test}if(line||part==='')lines.push(line);if(index<parts.length-1)lines.push('')});return lines}
 function drawTextBlock(ctx,lines,x,y,lineHeight,align='center'){ctx.textAlign=align;lines.forEach((line,index)=>{ctx.fillText(line,x,y+index*lineHeight)})}
 function updateStudioVersionBadge(){$('studioVersion').textContent=`Studio v${studioVersion}`}
-function syncStudioState(){studioState.questionIndex=Number($('studioQuestion').value||0);studioState.planetKey=$('studioPlanet').value||'earth';studioState.hook=$('studioHook').value.trim()||'あなたならどれを選ぶ？';studioState.cta=$('studioCta').value.trim()||'続きは無料サイトで診断してね\nプロフィールのリンクからチェック';studioState.showHandle=$('studioShowHandle').checked;studioState.showPrompt=$('studioShowPrompt').checked;updateStudioCaption()}
+function fillPlanetLine(template,planet){return (template||'{planet}の「{name}」が気になる？').replaceAll('{planet}',planet.planet).replaceAll('{name}',planet.name)}
+function syncStudioState(){studioState.questionIndex=Number($('studioQuestion').value||0);studioState.planetKey=$('studioPlanet').value||'earth';studioState.hook=$('studioHook').value.trim()||'あなたならどれを選ぶ？';studioState.planetLine=$('studioPlanetLine').value.trim()||'{planet}の「{name}」が気になる？';studioState.cta=$('studioCta').value.trim()||'続きは無料サイトで診断してね\nプロフィールのリンクからチェック';studioState.showHandle=$('studioShowHandle').checked;studioState.showPrompt=$('studioShowPrompt').checked;updateStudioCaption()}
 function updateStudioCaption(){const q=qs[studioState.questionIndex];const p=planets[studioState.planetKey];$('studioCaption').value=`${studioState.hook}\n${q[0]}\n\nあなたはどれを選ぶ？ コメントで教えてね。\n${p.name}っぽい人はどれだと思う？\n続きはプロフィールのリンクから無料診断へ ✨\n#ゆるっと惑星占い #心理テスト #診断 #ショート動画`;}
-function populateStudioControls(){$('studioQuestion').innerHTML=qs.map((q,i)=>`<option value="${i}">Q${i+1}｜${q[0]}</option>`).join('');$('studioPlanet').innerHTML=order.map(key=>`<option value="${key}">${planets[key].planet}｜${planets[key].name}</option>`).join('');['studioQuestion','studioPlanet','studioHook','studioCta','studioShowHandle','studioShowPrompt'].forEach(id=>$(id).addEventListener(id.includes('Show')?'change':'input',()=>{syncStudioState();restartStudioPreview()}));$('studioQuestion').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});$('studioPlanet').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});syncStudioState()}
+function populateStudioControls(){$('studioQuestion').innerHTML=qs.map((q,i)=>`<option value="${i}">Q${i+1}｜${q[0]}</option>`).join('');$('studioPlanet').innerHTML=order.map(key=>`<option value="${key}">${planets[key].planet}｜${planets[key].name}</option>`).join('');['studioQuestion','studioPlanet','studioHook','studioPlanetLine','studioCta','studioShowHandle','studioShowPrompt'].forEach(id=>$(id).addEventListener(id.includes('Show')?'change':'input',()=>{syncStudioState();restartStudioPreview()}));$('studioQuestion').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});$('studioPlanet').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});syncStudioState()}
 function restartStudioPreview(){studioPreviewStart=performance.now();$('studioStatus').textContent='プレビュー再生中';drawStudioFrame(0)}
 function drawStudioBackground(ctx,w,h){const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#cfe9ff');g.addColorStop(.55,'#eef4ff');g.addColorStop(1,'#ffe8f4');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.fillStyle='rgba(255,255,255,.45)';ctx.beginPath();ctx.arc(120,180,110,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(w-130,h-180,140,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(w-88,240,86,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(238,178,60,.45)';for(let i=0;i<5;i++){const x=120+i*220+(i%2?30:0),y=160+i*340;ctx.save();ctx.translate(x%w,y%h);ctx.rotate(.35);ctx.fillRect(-6,-34,12,68);ctx.fillRect(-34,-6,68,12);ctx.restore()}}
 const studioAssets=Object.fromEntries(order.map(key=>[key,new Image()]));order.forEach(key=>{studioAssets[key].src=planets[key].img});
@@ -225,7 +227,7 @@ function drawStudioFrame(timeSec){
  if(img?.complete){const bob=Math.sin(timeSec*2.5)*7;ctx.save();ctx.translate(w/2,1308+bob);const size=248;ctx.drawImage(img,-size/2,-size/2,size,size);ctx.restore()}
 
  ctx.fillStyle='#664fa5';ctx.font=`900 44px ${studioFont}`;ctx.textAlign='center';
- ctx.fillText(`${planet.planet}の「${planet.name}」が気になる？`,w/2,1466);
+ ctx.fillText(fillPlanetLine(studioState.planetLine,planet),w/2,1466);
  if(studioState.showPrompt){ctx.fillStyle='#ff6294';ctx.font=`900 60px ${studioFont}`;ctx.fillText('コメントで教えてね',w/2,1562)}
 
  ctx.save();ctx.globalAlpha=ctaP;
