@@ -217,8 +217,11 @@ function drawStudioFrame(timeSec){
  ctaGradient.addColorStop(1,'#ff6598');
  ctx.fillStyle=ctaGradient;drawRoundedRect(ctx,98,1668,w-196,106,38);ctx.fill();
  ctx.fillStyle='#fff';ctx.font=`900 42px ${studioFont}`;
- const ctaLines=studioState.cta.split('\n').slice(0,2);
- ctaLines.forEach((line,i)=>ctx.fillText(line,w/2,1710+i*38));
+ const ctaLines=studioState.cta.split('\n').map(line=>line.trim()).filter(Boolean).slice(0,2);
+ const ctaLineHeight=38;
+ const ctaCenterY=1668+(106/2)+14;
+ const ctaStartY=ctaCenterY-((ctaLines.length-1)*ctaLineHeight/2);
+ ctaLines.forEach((line,i)=>ctx.fillText(line,w/2,ctaStartY+i*ctaLineHeight));
  ctx.restore();
 
  if(studioState.showHandle){ctx.fillStyle='#7d7387';ctx.font=`800 28px ${studioFont}`;ctx.fillText('@yurutto_wakusei_s / saratto0116.github.io',w/2,h-84)}
