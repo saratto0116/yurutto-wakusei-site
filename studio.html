@@ -138,7 +138,7 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
 </div>
 <script>
 const assetVersion='20260606';
-const studioVersion='2026.07.04.4';
+const studioVersion='2026.07.04.5';
 const withAssetVersion=path=>`${path}?v=${assetVersion}`;
 const planets={
  earth:{planet:'地球',name:'ちきゅまる',img:withAssetVersion('images/chikyumaru.png')},
@@ -190,7 +190,7 @@ const studioCanvas=$('studioCanvas');
 const studioCtx=studioCanvas.getContext('2d');
 const studioState={questionIndex:0,planetKey:'earth',hook:'ゆるっと惑星占い',planetLine:'あなたはどれを選んだ？',cta:'占い結果は概要欄を今すぐチェック！',showHandle:true,showPrompt:true};
 let studioPreviewStart=performance.now(),studioPreviewRaf=0,studioRecording=false;
-let ffmpegBundlePromise=null,ffmpegTranscoder=null,ffmpegFetchFile=null;
+let ffmpegBundlePromise=null,ffmpegTranscoder=null,ffmpegFetchFile=null,ffmpegProgressBound=false;
 const studioFont='"Hiragino Maru Gothic ProN","Yu Gothic","Arial Rounded MT Bold",sans-serif';
 const optionPalettes=[
  {card:'rgba(255,239,247,.99)',chip:'#ffdced',letter:'#d35b98'},
@@ -296,20 +296,29 @@ async function ensureFfmpegReady(){
  if(ffmpegTranscoder&&ffmpegFetchFile)return{ffmpeg:ffmpegTranscoder,fetchFile:ffmpegFetchFile};
  if(!ffmpegBundlePromise){
   ffmpegBundlePromise=(async()=>{
-   const [{FFmpeg},{fetchFile,toBlobURL}]=await Promise.all([
-    import('./vendor/ffmpeg/ffmpeg/index.js'),
-    import('./vendor/ffmpeg/util/index.js')
-   ]);
-   const ffmpeg=new FFmpeg();
-   const coreBase='./vendor/ffmpeg/core';
-   await ffmpeg.load({
-    coreURL:await toBlobURL(`${coreBase}/ffmpeg-core.js`,'text/javascript'),
-    wasmURL:await toBlobURL(`${coreBase}/ffmpeg-core.wasm`,'application/wasm')
-   });
-   ffmpegTranscoder=ffmpeg;
-   ffmpegFetchFile=fetchFile;
-   return{ffmpeg,fetchFile};
-  })().catch(error=>{ffmpegBundlePromise=null;throw error});
+    const [{FFmpeg},{fetchFile,toBlobURL}]=await Promise.all([
+     import('./vendor/ffmpeg/ffmpeg/index.js'),
+     import('./vendor/ffmpeg/util/index.js')
+    ]);
+    const ffmpeg=new FFmpeg();
+    const coreBase='./vendor/ffmpeg/core';
+    $('studioStatus').textContent='MP4変換エンジンを準備中…';
+    await ffmpeg.load({
+      coreURL:await toBlobURL(`${coreBase}/ffmpeg-core.js`,'text/javascript'),
+      wasmURL:await toBlobURL(`${coreBase}/ffmpeg-core.wasm`,'application/wasm')
+    });
+    if(!ffmpegProgressBound){
+     ffmpeg.on('progress',event=>{
+      const ratio=Number.isFinite(event.progress)?event.progress:0;
+      const percent=Math.max(0,Math.min(100,Math.round(ratio*100)));
+      $('studioStatus').textContent=percent>=100?'MP4を書き出し中… 仕上げています':'MP4に変換中… '+percent+'%';
+     });
+     ffmpegProgressBound=true;
+    }
+    ffmpegTranscoder=ffmpeg;
+    ffmpegFetchFile=fetchFile;
+    return{ffmpeg,fetchFile};
+   })().catch(error=>{ffmpegBundlePromise=null;throw error});
  }
  return ffmpegBundlePromise;
 }
@@ -367,13 +376,15 @@ async function exportStudioMp4(){
  if(studioRecording)return;
  try{
   const {blob}=await captureStudioVideoBlob();
-  $('studioStatus').textContent='MP4変換エンジンを読み込み中… 初回のみ少し時間がかかります';
+   $('studioStatus').textContent='MP4変換エンジンを読み込み中… 初回のみ少し時間がかかります';
   const {ffmpeg,fetchFile}=await ensureFfmpegReady();
-  $('studioStatus').textContent='MP4に変換中…';
+  $('studioStatus').textContent='MP4変換の準備中…';
   const inputName=`input-${Date.now()}.webm`;
   const outputName=`output-${Date.now()}.mp4`;
   await ffmpeg.writeFile(inputName,await fetchFile(blob));
-  await ffmpeg.exec(['-i',inputName,'-movflags','+faststart',outputName]);
+  $('studioStatus').textContent='MP4に変換中… 0%';
+  await ffmpeg.exec(['-i',inputName,'-movflags','+faststart',outputName],180000);
+  $('studioStatus').textContent='MP4を書き出し中… 仕上げています';
   const data=await ffmpeg.readFile(outputName);
   const mp4Blob=new Blob([data.buffer],{type:'video/mp4'});
   downloadStudioBlob('studioDownloadMp4',mp4Blob,`yurutto-short-q${studioState.questionIndex+1}.mp4`);
