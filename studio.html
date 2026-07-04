@@ -101,7 +101,7 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
      <div class="studio-field"><label for="studioPlanet">メインに出すキャラ</label><select id="studioPlanet"></select></div>
      <div class="studio-field"><label for="studioHook">冒頭フック</label><input id="studioHook" type="text" value="ゆるっと惑星占い"></div>
      <div class="studio-field"><label for="studioPlanetLine">キャラ誘導文</label><input id="studioPlanetLine" type="text" value="あなたはどれを選んだ？"></div>
-     <div class="studio-field"><label for="studioCta">ラストの案内</label><textarea id="studioCta">答えは概要欄を今すぐチェック！</textarea></div>
+     <div class="studio-field"><label for="studioCta">ラストの案内</label><textarea id="studioCta">占い結果は概要欄を今すぐチェック！</textarea></div>
      <div class="studio-field">
       <span class="studio-subhead">表示オプション</span>
       <div class="studio-toggles">
@@ -188,7 +188,7 @@ const $=id=>document.getElementById(id);
 const studioDuration=10;
 const studioCanvas=$('studioCanvas');
 const studioCtx=studioCanvas.getContext('2d');
-const studioState={questionIndex:0,planetKey:'earth',hook:'ゆるっと惑星占い',planetLine:'あなたはどれを選んだ？',cta:'答えは概要欄を今すぐチェック！',showHandle:true,showPrompt:true};
+const studioState={questionIndex:0,planetKey:'earth',hook:'ゆるっと惑星占い',planetLine:'あなたはどれを選んだ？',cta:'占い結果は概要欄を今すぐチェック！',showHandle:true,showPrompt:true};
 let studioPreviewStart=performance.now(),studioPreviewRaf=0,studioRecording=false;
 let ffmpegBundlePromise=null,ffmpegTranscoder=null,ffmpegFetchFile=null;
 const studioFont='"Hiragino Maru Gothic ProN","Yu Gothic","Arial Rounded MT Bold",sans-serif';
@@ -206,7 +206,7 @@ function wrapLines(ctx,text,maxWidth){const parts=text.split('\n');const lines=[
 function drawTextBlock(ctx,lines,x,y,lineHeight,align='center'){ctx.textAlign=align;lines.forEach((line,index)=>{ctx.fillText(line,x,y+index*lineHeight)})}
 function updateStudioVersionBadge(){$('studioVersion').textContent=`Studio v${studioVersion}`}
 function fillPlanetLine(template){return template||'あなたはどれを選んだ？'}
-function syncStudioState(){studioState.questionIndex=Number($('studioQuestion').value||0);studioState.planetKey=$('studioPlanet').value||'earth';studioState.hook=$('studioHook').value.trim()||'ゆるっと惑星占い';studioState.planetLine=$('studioPlanetLine').value.trim()||'あなたはどれを選んだ？';studioState.cta=$('studioCta').value.trim()||'答えは概要欄を今すぐチェック！';studioState.showHandle=$('studioShowHandle').checked;studioState.showPrompt=$('studioShowPrompt').checked;updateStudioCaption()}
+function syncStudioState(){studioState.questionIndex=Number($('studioQuestion').value||0);studioState.planetKey=$('studioPlanet').value||'earth';studioState.hook=$('studioHook').value.trim()||'ゆるっと惑星占い';studioState.planetLine=$('studioPlanetLine').value.trim()||'あなたはどれを選んだ？';studioState.cta=$('studioCta').value.trim()||'占い結果は概要欄を今すぐチェック！';studioState.showHandle=$('studioShowHandle').checked;studioState.showPrompt=$('studioShowPrompt').checked;updateStudioCaption()}
 function setStudioActionDisabled(disabled){['studioReplay','studioExportMp4','studioExportWebm'].forEach(id=>$(id).disabled=disabled)}
 function clearStudioDownloadStates(){['studioDownloadMp4','studioDownloadWebm','studioDownloadPoster'].forEach(id=>$(id).classList.remove('ready'))}
 function downloadStudioBlob(anchorId,blob,filename){const url=URL.createObjectURL(blob),anchor=$(anchorId);anchor.href=url;anchor.download=filename;anchor.classList.add('ready');anchor.click()}
