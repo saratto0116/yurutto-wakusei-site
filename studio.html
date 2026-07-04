@@ -70,6 +70,8 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
 .studio-screen{overflow:hidden;border-radius:26px;background:#fff6fb;border:4px solid rgba(255,255,255,.22)}
 .studio-canvas{display:block;width:100%;height:auto;aspect-ratio:9/16;background:#dfeffd}
 .studio-status{font-size:12px;color:#745f8e;font-weight:800}
+.studio-meta{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#745f8e;font-weight:800}
+.studio-version{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#fff;border:1px solid rgba(123,92,230,.14);color:#6a54a7}
 .studio-downloads a{display:none}
 .studio-downloads a.ready{display:flex}
 .studio-summary{display:grid;gap:8px;padding:12px;border-radius:20px;background:rgba(255,255,255,.84);border:1px solid rgba(255,255,255,.88);width:100%}
@@ -115,7 +117,10 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
    </div>
    <div class="studio-preview">
     <div class="studio-device"><div class="studio-screen"><canvas id="studioCanvas" class="studio-canvas" width="1080" height="1920"></canvas></div></div>
-    <div id="studioStatus" class="studio-status">プレビュー再生中</div>
+    <div class="studio-meta">
+     <div id="studioStatus" class="studio-status">プレビュー再生中</div>
+     <div id="studioVersion" class="studio-version">Studio v2026.07.04.1</div>
+    </div>
     <div class="studio-downloads">
      <a id="studioDownloadVideo" class="studio-action studio-export" download="yurutto-short-video.webm">動画をダウンロード</a>
      <a id="studioDownloadPoster" class="studio-action studio-ghost" download="yurutto-short-poster.png">サムネ画像をダウンロード</a>
@@ -130,6 +135,7 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
 </div>
 <script>
 const assetVersion='20260606';
+const studioVersion='2026.07.04.1';
 const withAssetVersion=path=>`${path}?v=${assetVersion}`;
 const planets={
  earth:{planet:'地球',name:'ちきゅまる',img:withAssetVersion('images/chikyumaru.png')},
@@ -156,6 +162,7 @@ function segmentProgress(time,start,duration){return clamp((time-start)/duration
 function drawRoundedRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 function wrapLines(ctx,text,maxWidth){const parts=text.split('\n');const lines=[];parts.forEach((part,index)=>{let line='';for(const char of part){const test=line+char;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=char}else line=test}if(line||part==='')lines.push(line);if(index<parts.length-1)lines.push('')});return lines}
 function drawTextBlock(ctx,lines,x,y,lineHeight,align='center'){ctx.textAlign=align;lines.forEach((line,index)=>{ctx.fillText(line,x,y+index*lineHeight)})}
+function updateStudioVersionBadge(){$('studioVersion').textContent=`Studio v${studioVersion}`}
 function syncStudioState(){studioState.questionIndex=Number($('studioQuestion').value||0);studioState.planetKey=$('studioPlanet').value||'earth';studioState.hook=$('studioHook').value.trim()||'あなたならどれを選ぶ？';studioState.cta=$('studioCta').value.trim()||'続きは無料サイトで診断してね\nプロフィールのリンクからチェック';studioState.showHandle=$('studioShowHandle').checked;studioState.showPrompt=$('studioShowPrompt').checked;updateStudioCaption()}
 function updateStudioCaption(){const q=qs[studioState.questionIndex];const p=planets[studioState.planetKey];$('studioCaption').value=`${studioState.hook}\n${q[0]}\n\nあなたはどれを選ぶ？ コメントで教えてね。\n${p.name}っぽい人はどれだと思う？\n続きはプロフィールのリンクから無料診断へ ✨\n#ゆるっと惑星占い #心理テスト #診断 #ショート動画`;}
 function populateStudioControls(){$('studioQuestion').innerHTML=qs.map((q,i)=>`<option value="${i}">Q${i+1}｜${q[0]}</option>`).join('');$('studioPlanet').innerHTML=order.map(key=>`<option value="${key}">${planets[key].planet}｜${planets[key].name}</option>`).join('');['studioQuestion','studioPlanet','studioHook','studioCta','studioShowHandle','studioShowPrompt'].forEach(id=>$(id).addEventListener(id.includes('Show')?'change':'input',()=>{syncStudioState();restartStudioPreview()}));$('studioQuestion').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});$('studioPlanet').addEventListener('change',()=>{syncStudioState();restartStudioPreview()});syncStudioState()}
@@ -300,6 +307,7 @@ async function exportStudioVideo(){
 $('studioReplay').onclick=()=>{syncStudioState();restartStudioPreview()};
 $('studioExport').onclick=exportStudioVideo;
 populateStudioControls();
+updateStudioVersionBadge();
 restartStudioPreview();
 studioPreviewRaf=requestAnimationFrame(studioPreviewLoop);
 </script>
