@@ -156,6 +156,12 @@ const studioCtx=studioCanvas.getContext('2d');
 const studioState={questionIndex:0,planetKey:'earth',hook:'あなたならどれを選ぶ？',cta:'続きは無料サイトで診断してね\nプロフィールのリンクからチェック',showHandle:true,showPrompt:true};
 let studioPreviewStart=performance.now(),studioPreviewRaf=0,studioRecording=false;
 const studioFont='"Hiragino Maru Gothic ProN","Yu Gothic","Arial Rounded MT Bold",sans-serif';
+const optionPalettes=[
+ {card:'rgba(255,239,247,.99)',chip:'#ffdced',letter:'#d35b98'},
+ {card:'rgba(235,245,255,.99)',chip:'#dfeeff',letter:'#5288d8'},
+ {card:'rgba(240,255,237,.99)',chip:'#def8dc',letter:'#58a35c'},
+ {card:'rgba(255,246,226,.99)',chip:'#ffebc6',letter:'#cb8a2d'}
+];
 function easeOutCubic(t){return 1-Math.pow(1-t,3)}
 function clamp(v,min,max){return Math.min(max,Math.max(min,v))}
 function segmentProgress(time,start,duration){return clamp((time-start)/duration,0,1)}
@@ -197,14 +203,15 @@ function drawStudioFrame(timeSec){
  q[1].forEach((choice,index)=>{
   const delay=index*.15,local=clamp((choicesP-delay)/.26,0,1),y=486+index*180+(1-local)*22;
   const x=92,boxW=w-184,boxH=148;
+  const palette=optionPalettes[index%optionPalettes.length];
   ctx.save();ctx.globalAlpha=local;
   const cardGradient=ctx.createLinearGradient(x,y,x+boxW,y+boxH);
   cardGradient.addColorStop(0,'rgba(255,255,255,.99)');
-  cardGradient.addColorStop(1,index%2===0?'rgba(247,239,255,.99)':'rgba(241,247,255,.99)');
+  cardGradient.addColorStop(1,palette.card);
   ctx.fillStyle=cardGradient;drawRoundedRect(ctx,x,y,boxW,boxH,40);ctx.fill();
   ctx.strokeStyle='rgba(123,92,230,.18)';ctx.lineWidth=3;ctx.stroke();
-  ctx.fillStyle=index%2===0?'#efe5ff':'#e7efff';drawRoundedRect(ctx,x+20,y+20,86,86,28);ctx.fill();
-  ctx.fillStyle='#6b51bb';ctx.font=`900 50px ${studioFont}`;ctx.textAlign='center';ctx.fillText(String.fromCharCode(65+index),x+63,y+78);
+  ctx.fillStyle=palette.chip;drawRoundedRect(ctx,x+20,y+20,86,86,28);ctx.fill();
+  ctx.fillStyle=palette.letter;ctx.font=`900 50px ${studioFont}`;ctx.textAlign='center';ctx.fillText(String.fromCharCode(65+index),x+63,y+78);
   ctx.fillStyle='#4a3b56';ctx.font=`900 60px ${studioFont}`;ctx.textAlign='left';
   const optionLines=wrapLines(ctx,choice[0],boxW-150).slice(0,2);
   const optionLineHeight=54;
