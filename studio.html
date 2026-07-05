@@ -138,7 +138,7 @@ button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
 </div>
 <script>
 const assetVersion='20260606';
-const studioVersion='2026.07.05.2';
+const studioVersion='2026.07.05.3';
 const withAssetVersion=path=>`${path}?v=${assetVersion}`;
 const planets={
  earth:{planet:'地球',name:'ちきゅまる',img:withAssetVersion('images/chikyumaru.png')},
@@ -383,7 +383,7 @@ async function exportStudioMp4(){
   const outputName=`output-${Date.now()}.mp4`;
   await ffmpeg.writeFile(inputName,await fetchFile(blob));
   $('studioStatus').textContent='MP4に変換中… 0%';
-  await ffmpeg.exec(['-i',inputName,'-c:v','mpeg4','-q:v','2','-pix_fmt','yuv420p','-movflags','+faststart',outputName],180000);
+  await ffmpeg.exec(['-fflags','+genpts','-i',inputName,'-r','30','-t',String(studioDuration),'-an','-c:v','mpeg4','-q:v','2','-pix_fmt','yuv420p','-movflags','+faststart',outputName],180000);
   $('studioStatus').textContent='MP4を書き出し中… 仕上げています';
   const data=await ffmpeg.readFile(outputName);
   const mp4Blob=new Blob([data],{type:'video/mp4'});
