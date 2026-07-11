@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://saratto0116.github.io/yurutto-wakusei-site/sitemap.xml
