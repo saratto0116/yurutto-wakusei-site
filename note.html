@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ゆるっと惑星ズ note工房</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+@font-face{
+ font-family:"YuruttoPop";
+ src:local("Hannotate SC"),local("Hannotate TC"),local("TsukuARdGothic-Regular"),local("Hiragino Maru Gothic ProN W4"),local("Hiragino Maru Gothic ProN"),local("Arial Rounded MT Bold");
+ font-display:swap;
+}
+:root{
+ --ink:#412f3c;--muted:#796c7c;--line:rgba(103,79,116,.11);--violet:#7b5ce6;--pink:#f279ac;
+ --shadow:0 25px 60px rgba(74,44,76,.13);--soft-shadow:0 9px 22px rgba(73,40,76,.09);
+ --display-font:"YuruttoPop","Hannotate SC","TsukuARdGothic-Regular","Hiragino Maru Gothic ProN","Arial Rounded MT Bold","M PLUS Rounded 1c","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100svh;color:var(--ink);font-family:var(--display-font);font-weight:700;
+ background:
+  radial-gradient(circle at 12% 8%,#ffe0ea 0,transparent 29%),
+  radial-gradient(circle at 91% 12%,#dbf1ff 0,transparent 28%),
+  radial-gradient(circle at 84% 90%,#e8e0ff 0,transparent 29%),
+  linear-gradient(145deg,#fff9e7,#fff7f2 39%,#f5efff);
+}
+button,input,select,textarea,a{font:inherit;font-family:var(--display-font)}
+.shell{width:min(100%,1180px);margin:auto;padding:18px 14px 28px}
+.header{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:11px 14px;
+ background:rgba(255,253,251,.8);border:1px solid rgba(255,255,255,.8);border-radius:999px;
+ box-shadow:0 8px 22px rgba(70,45,75,.07);backdrop-filter:blur(12px)
+}
+.brand{border:0;background:none;color:#6347ae;font-weight:900;cursor:pointer;text-decoration:none}
+.back{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;padding:10px 14px;border-radius:999px;background:#f0eaff;color:#644abc;font-weight:900;border:1px solid rgba(123,92,230,.14)}
+.glass{
+ position:relative;overflow:hidden;background:rgba(255,253,250,.9);border:1px solid rgba(255,255,255,.82);
+ border-radius:32px;box-shadow:var(--shadow);backdrop-filter:blur(13px)
+}
+.glass:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 1px 1px rgba(255,255,255,.9)}
+.note-card{padding:22px 16px 20px}
+.section-head{text-align:center;margin-bottom:16px}
+.eyebrow{font-size:12px;font-weight:900;color:#7457a4;letter-spacing:.11em;margin:0 0 7px}
+.section-title{margin:0;font-size:28px;line-height:1.15;letter-spacing:.03em}
+.note-copy{margin:8px auto 0;max-width:38em;font-size:13px;line-height:1.75;color:var(--muted);font-weight:800}
+.note-layout{display:grid;gap:14px;margin-top:16px}
+.note-panel,.note-preview{
+ background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.86);border-radius:24px;padding:14px;box-shadow:0 14px 30px rgba(72,53,97,.09)
+}
+.note-preview{display:grid;gap:12px;background:linear-gradient(180deg,rgba(237,246,255,.95),rgba(255,246,252,.92))}
+.note-grid{display:grid;gap:12px}
+.note-field{display:grid;gap:6px}
+.note-field label,.note-subhead{font-size:12px;font-weight:900;color:#7457a4;letter-spacing:.06em}
+.note-field select,.note-field textarea,.note-field input{width:100%;border:1.5px solid rgba(123,92,230,.18);border-radius:18px;padding:12px 13px;background:#fff;color:var(--ink)}
+.note-field textarea{min-height:92px;resize:vertical}
+.note-help,.note-note{font-size:11px;line-height:1.65;color:#7d7282}
+.note-actions,.note-downloads{display:grid;gap:9px}
+.note-actions{margin-top:14px}
+.note-action{
+ display:flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:999px;padding:14px 16px;
+ font-size:15px;font-weight:900;cursor:pointer;min-height:52px
+}
+.note-generate{background:linear-gradient(110deg,#ff8f70,#ff5f92);color:#fff}
+.note-copy-btn{background:#fff;color:#654d93;border:1px solid #ddd0ed}
+.note-status{font-size:12px;color:#745f8e;font-weight:800}
+.note-meta{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#745f8e;font-weight:800}
+.note-version{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#fff;border:1px solid rgba(123,92,230,.14);color:#6a54a7}
+.note-summary{display:grid;gap:8px;padding:12px;border-radius:20px;background:rgba(255,255,255,.84);border:1px solid rgba(255,255,255,.88);width:100%}
+.note-badges{display:flex;flex-wrap:wrap;gap:6px}
+.note-badges span{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#fff;border:1px solid rgba(123,92,230,.14);font-size:11px;color:#6f6182;font-weight:900}
+.note-output{display:grid;gap:12px}
+.note-output textarea{min-height:120px}
+.note-output .large{min-height:360px}
+@media(min-width:960px){.note-layout{grid-template-columns:minmax(0,1.02fr) minmax(420px,.98fr);align-items:start}}
+@media(max-width:520px){.shell{padding:10px 11px 20px}.header{flex-direction:column;align-items:stretch;border-radius:24px}.section-title{font-size:24px}.note-panel,.note-preview{padding:13px}}
+</style>
+</head>
+<body>
+<div class="shell">
+ <header class="header">
+  <a class="brand" href="./">🪐 ゆるっと惑星ズ note工房</a>
+  <a class="back" href="./">公開サイトへ戻る</a>
+ </header>
+ <section class="glass note-card">
+  <div class="section-head">
+   <p class="eyebrow">PRIVATE NOTE STUDIO</p>
+   <h1 class="section-title">流入向け note 記事を作る</h1>
+   <p class="note-copy">記事の方向性と切り口を入れると、note 用のタイトル案、見出し構成、本文、末尾CTAまでまとめて生成します。サイト流入を狙う前提のテンプレ型です。</p>
+  </div>
+  <div class="note-layout">
+   <div class="note-panel">
+    <div class="note-grid">
+     <div class="note-field"><label for="noteMode">記事モード</label><select id="noteMode"></select></div>
+     <div class="note-field"><label for="noteTitle">記事タイトルの方向性</label><input id="noteTitle" type="text" value="4択でわかる性格診断"></div>
+     <div class="note-field"><label for="noteAngle">記事の切り口</label><input id="noteAngle" type="text" value="疲れた日の心の傾向"></div>
+     <div class="note-field"><label for="noteReader">読者の悩み・関心</label><input id="noteReader" type="text" value="最近ちょっと疲れていて、自分の傾向を知りたい人"></div>
+     <div class="note-field"><label for="noteTone">文体</label><select id="noteTone"></select></div>
+     <div class="note-field"><label for="noteLength">文字量</label><select id="noteLength"></select></div>
+     <div class="note-field"><label for="noteQuestion">使う質問</label><select id="noteQuestion"></select></div>
+     <div class="note-field"><label for="notePlanet">使うキャラ</label><select id="notePlanet"></select></div>
+     <div class="note-field"><label for="noteCtaUrl">固定CTA URL</label><input id="noteCtaUrl" type="text" value="https://saratto0116.github.io/yurutto-wakusei-site/?utm_source=note&utm_medium=article&utm_campaign=note_flow"></div>
+    </div>
+    <div class="note-actions">
+     <button id="noteGenerate" class="note-action note-generate">記事を生成する</button>
+     <button id="noteCopyAll" class="note-action note-copy-btn">本文をコピーする</button>
+    </div>
+    <p class="note-note">MVP はテンプレ生成型です。構成を固定しつつ、切り口・質問・キャラを差し替えて量産する前提にしています。</p>
+   </div>
+   <div class="note-preview">
+    <div class="note-meta">
+     <div id="noteStatus" class="note-status">生成待ち</div>
+     <div id="noteVersion" class="note-version">Note v2026.07.18.1</div>
+    </div>
+    <div class="note-summary">
+     <div class="note-badges"><span>note向け</span><span>流入重視</span><span>テンプレ生成</span><span>CTA固定</span></div>
+     <div class="note-output">
+      <div class="note-field"><label for="noteIdeas">タイトル案</label><textarea id="noteIdeas" readonly></textarea></div>
+      <div class="note-field"><label for="noteOutline">見出し構成</label><textarea id="noteOutline" readonly></textarea></div>
+      <div class="note-field"><label for="noteBody">記事本文</label><textarea id="noteBody" class="large" readonly></textarea></div>
+      <div class="note-field"><label for="noteCta">記事末尾CTA</label><textarea id="noteCta" readonly></textarea></div>
+      <div class="note-field"><label for="noteSocial">SNS告知文</label><textarea id="noteSocial" readonly></textarea></div>
+     </div>
+     <div class="note-help">記事本文はそのまま note に貼れる形で出します。本文中に1回、末尾に1回、サイトへの導線を入れます。</div>
+    </div>
+   </div>
+  </div>
+ </section>
+</div>
+<script>
+const noteVersion='2026.07.18.1';
+const assetVersion='20260606';
+const withAssetVersion=path=>`${path}?v=${assetVersion}`;
+const planets={
+ earth:{planet:'地球',name:'ちきゅまる',type:'包みこむ癒やしタイプ',desc:'周りをほっと安心させる優しい子。誰かの疲れに気づき、自然に寄り添える力があります。'},
+ mercury:{planet:'水星',name:'すいすい',type:'軽やか対応タイプ',desc:'状況をすばやく理解し、軽やかに動ける頼れる子。物事をスムーズに進める力があります。'},
+ mars:{planet:'火星',name:'かせっち',type:'前向き挑戦タイプ',desc:'元気と勇気でみんなの背中を押す子。始める力と、挑戦を楽しむ強さを持っています。'},
+ jupiter:{planet:'木星',name:'もくどん',type:'ほめ上手応援タイプ',desc:'誰かの良さや可能性を見つけるのが得意な子。明るい言葉で、自信を育てます。'},
+ venus:{planet:'金星',name:'きらら',type:'愛情コミュニケーションタイプ',desc:'小さな幸せや親切に気づき、感謝を届ける子。やさしさで周りを明るくします。'},
+ saturn:{planet:'土星',name:'どせたん',type:'コツコツ安定タイプ',desc:'毎日を丁寧に積み重ねるしっかり者。落ち着いた安定感で、みんなを支えます。'},
+ uranus:{planet:'天王星',name:'てんてん',type:'自由なひらめきタイプ',desc:'人とは違う見方で、新しい発見を楽しむ子。自由な発想が魅力です。'},
+ neptune:{planet:'海王星',name:'ねぷるん',type:'夢見る共感タイプ',desc:'やさしい感性で、心を静かに癒やす子。夢見る想像力でそっと寄り添います。'}
+};
+const order=['earth','mercury','mars','jupiter','venus','saturn','uranus','neptune'];
+const qs=[
+ ['休日、何をして過ごしたい？',[['ゆっくり休む','heal'],['誰かと楽しむ','connect'],['外へ出かける','move'],['好きなことに没頭','axis']]],
+ ['友達が落ち込んでいたら？',[['そっと寄り添う','heal'],['良いところを伝える','connect'],['すぐ助けに動く','move'],['別の見方を伝える','axis']]],
+ ['みんなの中での役割は？',[['安心できる空気を作る','heal'],['明るく盛り上げる','connect'],['話を進める','move'],['案や計画を考える','axis']]],
+ ['うれしいのはどんなとき？',[['ほっと落ち着けたとき','heal'],['喜びを共有できたとき','connect'],['一歩進めたとき','move'],['新しい発見をしたとき','axis']]],
+ ['トラブルが起きたら？',[['まず心を落ち着ける','heal'],['誰かに話してみる','connect'],['できることから動く','move'],['原因を考えてみる','axis']]],
+ ['言われてうれしいのは？',[['一緒にいるとほっとする','heal'],['明るい気持ちになれる','connect'],['頼りになる','move'],['考え方が素敵','axis']]],
+ ['大切にしたいのは？',[['やさしくいること','heal'],['気持ちを伝えること','connect'],['まず一歩進むこと','move'],['自分らしく選ぶこと','axis']]],
+ ['初めての場所では？',[['周りが安心できるようにする','heal'],['まず声をかけてみる','connect'],['気になった場所へ動く','move'],['全体の空気を観察する','axis']]],
+ ['疲れた日に求めるのは？',[['静かな休息','heal'],['誰かとのたわいない会話','connect'],['気分転換になる行動','move'],['ひとりで考える時間','axis']]],
+ ['誰かに贈り物をするなら？',[['相手がほっとするもの','heal'],['一緒に楽しめるもの','connect'],['今すぐ役立つもの','move'],['相手らしさに合うもの','axis']]],
+ ['予定が空いたらどうする？',[['無理せずゆるく過ごす','heal'],['誰かを誘ってみる','connect'],['気になっていた場所へ行く','move'],['やりたいことを整理する','axis']]],
+ ['意見が分かれたときは？',[['まず空気をやわらげる','heal'],['気持ちを聞き合う','connect'],['結論に向けて動く','move'],['違う案を出してみる','axis']]],
+ ['頑張るときの支えは？',[['安心できる居場所','heal'],['応援してくれる人','connect'],['まずやってみる勢い','move'],['納得できる理由','axis']]],
+ ['朝いちばんに考えるのは？',[['今日は無理しすぎない','heal'],['誰に連絡しようかな','connect'],['何から始めようかな','move'],['今日はどう進めようかな','axis']]],
+ ['誰かに頼られたら？',[['気持ちが落ち着くように寄り添う','heal'],['言葉で元気づける','connect'],['すぐ手伝いに向かう','move'],['整理して道筋を考える','axis']]],
+ ['気持ちを切り替えたいときは？',[['落ち着ける時間をとる','heal'],['誰かと話してほぐす','connect'],['体を動かして変える','move'],['頭の中を整理する','axis']]],
+ ['作業が立て込んだら？',[['ひとつずつ無理なく進める','heal'],['周りと声をかけ合う','connect'],['優先順を決めて着手する','move'],['全体像を組み直す','axis']]],
+ ['褒めるならどう伝える？',[['安心できる言葉で伝える','heal'],['気持ちが明るくなるよう伝える','connect'],['行動を具体的に褒める','move'],['その人らしさを言葉にする','axis']]],
+ ['長く続けたいことがあるときは？',[['心地よい形に整える','heal'],['誰かと励まし合う','connect'],['まずやる日を決める','move'],['続ける仕組みを考える','axis']]],
+ ['誘いを受けたときの判断は？',[['無理がないかで決める','heal'],['一緒に楽しめそうかで決める','connect'],['今が動きどきかで決める','move'],['自分に合うかで決める','axis']]],
+ ['失敗したあとにまずするのは？',[['気持ちを休める','heal'],['誰かに話して整理する','connect'],['次の一手を考える','move'],['原因を振り返る','axis']]],
+ ['新しい趣味を始めるなら？',[['癒やされるものを選ぶ','heal'],['誰かと共有できるものを選ぶ','connect'],['体験型のものを選ぶ','move'],['好奇心が刺激されるものを選ぶ','axis']]],
+ ['誰かの相談を聞くときは？',[['安心して話せる空気を作る','heal'],['気持ちに共感しながら聞く','connect'],['できる行動を一緒に探す','move'],['状況を整理して考える','axis']]],
+ ['待ち時間ができたら？',[['ぼんやりひと息つく','heal'],['メッセージを返す','connect'],['先にできることを進める','move'],['考えごとをまとめる','axis']]],
+ ['自分のペースを守るには？',[['休むタイミングを大事にする','heal'],['周りと程よくつながる','connect'],['小さく動き続ける','move'],['やる基準を持つ','axis']]],
+ ['イベントの準備で得意なのは？',[['みんなが安心できる段取り','heal'],['声かけや雰囲気づくり','connect'],['必要なことをどんどん進める','move'],['抜け漏れなく計画する','axis']]],
+ ['悩みごとがある夜は？',[['温かくして早めに休む','heal'],['信頼できる人に話す','connect'],['明日の行動を決める','move'],['気持ちを書き出す','axis']]],
+ ['嬉しい報告をするときは？',[['落ち着いた気持ちで伝える','heal'],['一緒に喜んでくれそうな人に伝える','connect'],['すぐに共有したくなる','move'],['言葉を選んで丁寧に伝える','axis']]],
+ ['やる気が出ない日は？',[['自分を責めずに整える','heal'],['誰かの力を借りる','connect'],['まず少しだけ手をつける','move'],['何が引っかかっているか見る','axis']]],
+ ['新しいアイデアが浮かんだら？',[['無理なくできる形を考える','heal'],['誰かに話して反応を見る','connect'],['すぐ試してみる','move'],['面白さを掘り下げる','axis']]],
+ ['大事な約束の前日は？',[['体調を整えて備える','heal'],['相手のことを思い浮かべる','connect'],['必要な準備を済ませる','move'],['流れを頭の中で確認する','axis']]]
+];
+const modes={
+ intro:{label:'サイト紹介',headline:'まずはこの占いでわかることを伝える',bodyIntro:'最初に診断全体の魅力を紹介しつつ、読者が「自分もやってみたい」と思える流れにします。'},
+ question:{label:'質問深掘り',headline:'質問から性格傾向の違いを見せる',bodyIntro:'ひとつの質問から見える違いを整理し、最終結果はサイトで確かめたくなる形にします。'},
+ character:{label:'キャラ紹介',headline:'1キャラを入口にして世界観へ誘導する',bodyIntro:'キャラの魅力を紹介しながら、「自分はこのタイプかも」と思わせて診断に送ります。'},
+ compare:{label:'タイプ比較',headline:'2つ以上のタイプの違いを比べる',bodyIntro:'似ているようで違うタイプを比べて、最終的な答えは診断へ繋げます.'}
+};
+const tones={
+ soft:{label:'やさしい',lead:'やさしく寄り添う言い方で',ending:'気軽に試してみてくださいね。'},
+ pop:{label:'かわいい',lead:'少しポップで親しみやすい言い方で',ending:'ゆるっと楽しみながら読んでもらえたらうれしいです。'},
+ guide:{label:'説明重視',lead:'分かりやすく整理して伝える言い方で',ending:'気になったら診断で傾向を確かめてみてください。'}
+};
+const lengths={
+ short:{label:'800字前後',paragraphs:3},
+ medium:{label:'1200字前後',paragraphs:4},
+ long:{label:'1600字前後',paragraphs:5}
+};
+const $=id=>document.getElementById(id);
+function populateControls(){
+ $('noteMode').innerHTML=Object.entries(modes).map(([key,val])=>`<option value="${key}">${val.label}</option>`).join('');
+ $('noteTone').innerHTML=Object.entries(tones).map(([key,val])=>`<option value="${key}">${val.label}</option>`).join('');
+ $('noteLength').innerHTML=Object.entries(lengths).map(([key,val])=>`<option value="${key}">${val.label}</option>`).join('');
+ $('noteQuestion').innerHTML=qs.map((q,i)=>`<option value="${i}">Q${i+1}｜${q[0]}</option>`).join('');
+ $('notePlanet').innerHTML=order.map(key=>`<option value="${key}">${planets[key].planet}｜${planets[key].name}</option>`).join('');
+ $('noteVersion').textContent=`Note v${noteVersion}`;
+}
+function getState(){
+ return{
+  mode:$('noteMode').value||'intro',
+  title:$('noteTitle').value.trim()||'4択でわかる性格診断',
+  angle:$('noteAngle').value.trim()||'疲れた日の心の傾向',
+  reader:$('noteReader').value.trim()||'最近ちょっと疲れていて、自分の傾向を知りたい人',
+  tone:$('noteTone').value||'soft',
+  length:$('noteLength').value||'medium',
+  questionIndex:Number($('noteQuestion').value||0),
+  planetKey:$('notePlanet').value||'earth',
+  ctaUrl:$('noteCtaUrl').value.trim()||'https://saratto0116.github.io/yurutto-wakusei-site/?utm_source=note&utm_medium=article&utm_campaign=note_flow'
+ };
+}
+function makeTitleIdeas(state,question,planet){
+ return[
+  `${state.title}｜${state.angle}をやさしく読み解く`,
+  `${question[0]}から見える、${planet.name}っぽさとあなたらしさ`,
+  `${state.reader}へ。${state.angle}を4択で見つめるヒント`
+ ].join('\n');
+}
+function makeOutline(state,question,planet){
+ const blocks=[
+  '1. こんな人に向けた記事です',
+  `2. 「${question[0]}」で見えてくる4つの傾向`,
+  `3. ${planet.name}(${planet.type}) の魅力`,
+  '4. 言い切らずに、診断本編へつなぐ',
+  '5. 無料診断への案内'
+ ];
+ return blocks.join('\n');
+}
+function paragraphByMode(state,question,planet){
+ const mode=modes[state.mode];
+ if(state.mode==='intro')return[
+  `「${state.title}」という言葉に少しでも惹かれたなら、たぶん今のあなたは自分の気分や性格を、やさしく整理したい時期なのだと思います。ゆるっと惑星占いは、そんな${state.reader}に向けて作った無料診断です。`,
+  `診断では「${question[0]}」のような4択に答えていくだけで、あなたの傾向を大きく4つの方向から見ていきます。安心感を大事にするのか、つながりを求めるのか、まず動くタイプなのか、自分なりの軸を整えるタイプなのか。その違いを、かわいい惑星キャラクターに重ねて楽しめるのがこのサイトの面白さです。`,
+  `たとえば${planet.planet}の「${planet.name}」は、${planet.desc} そんな個性を持っています。記事の中で少しずつ傾向を読むことはできますが、最終的に自分の「マイ惑星」を知るには、実際に8問の流れで見ていくのがいちばん早いです。`
+ ];
+ if(state.mode==='question')return[
+  `今日は「${question[0]}」という問いから、あなたの傾向をゆるく見ていきます。この質問がいいのは、正解がないところです。${state.reader}ほど、直感で選んだ答えに自分らしさが出やすいからです。`,
+  `この4択では、ほっと休みたい気持ち、誰かとつながりたい気持ち、まず動きたい気持ち、自分の軸で整えたい気持ちが自然に分かれます。表面的には似た選択でも、どこに安心を感じるかで傾向は変わります。`,
+  `もし${planet.name}っぽさが気になるなら、${planet.desc} という特徴もヒントになります。ただし、この質問1つだけで結果を決めるより、いくつかの質問を重ねた方が、自分でも納得できる結果になりやすいです。`
+ ];
+ if(state.mode==='character')return[
+  `今回は${planet.planet}の「${planet.name}」を入口にして、ゆるっと惑星占いの世界を紹介します。${planet.name}は${planet.type}で、${planet.desc} そのやわらかい個性が、記事だけでもかなり伝わるキャラクターです。`,
+  `とはいえ、キャラ紹介を読んで「たぶん自分はこのタイプかも」と思っても、実際の診断では意外な方向が出ることがあります。そこがこの占いの面白いところで、${question[0]}のような場面質問を通して、自分の傾向が少しずつ見えてきます。`,
+  `キャラを好きになる入口として読むのも楽しいですが、自分のマイ惑星として本当に近いのかは、診断本編で答え合わせするのが一番です。`
+ ];
+ return[
+  `「${state.angle}」を考えるとき、似ているようで違う2つのタイプが見えてきます。${state.reader}ほど、その違いを知るだけで少し気持ちが軽くなることがあります。`,
+  `たとえば「${question[0]}」という問いでも、安心を求める選び方と、まず動いて整える選び方では、同じ前向きさでも質が違います。誰かとのつながりで力が出る人もいれば、自分の軸を整えてから進む人もいます。`,
+  `${planet.name}のような${planet.type}は、その違いをイメージしやすくしてくれる存在です。記事では方向性までは見えますが、最終的にどの惑星に近いのかまでは、診断で見た方が納得感があります。`
+ ];
+}
+function extendParagraphs(base,state,question,planet){
+ const out=[...base];
+ if(lengths[state.length].paragraphs>=4){
+  out.push(`note では文章でじっくり読めるぶん、「自分はどうしてその選択をしたくなるのか」を考えやすいのが利点です。ただ、答えを記事だけで決め切るより、実際に質問を進めながら確かめた方が、${planet.name}以外のタイプとの違いまで見えてきます。`);
+ }
+ if(lengths[state.length].paragraphs>=5){
+  out.push(`もし今の自分をやさしく知りたいなら、診断は深刻になりすぎずに使うのがちょうどいいです。気分や環境で答えが変わることも含めて楽しみながら、「今日はどの惑星っぽいかな」と見るくらいの距離感が、このサイトには合っています。`);
+ }
+ return out;
+}
+function makeCta(url){
+ return`8問であなたの「マイ惑星」がわかる無料診断はこちら\n${url}`;
+}
+function makeBody(state,question,planet){
+ const tone=tones[state.tone];
+ const mode=modes[state.mode];
+ const base=paragraphByMode(state,question,planet);
+ const paragraphs=extendParagraphs(base,state,question,planet);
+ const cta=makeCta(state.ctaUrl);
+ return[
+  `# ${state.title}`,
+  '',
+  `${tone.lead}${mode.headline}記事です。今回は「${state.angle}」をテーマに、${state.reader}へ向けて書いてみます。`,
+  '',
+  ...paragraphs.flatMap(p=>[p,'']),
+  `詳しく診断してみたい方は、こちらからどうぞ。\n${state.ctaUrl}`,
+  '',
+  '## まとめ',
+  '',
+  `「${question[0]}」のような問いには、その人の安心の取り方や動き方、つながり方が自然に出ます。記事だけでも傾向は読めますが、最終的な答えは診断本編で確かめるのがいちばんです。${tone.ending}`,
+  '',
+  cta
+ ].join('\n');
+}
+function makeSocial(state,question){
+ return`noteを更新しました。\n\n${state.title}\n「${question[0]}」から見える傾向をやさしく整理しています。\n続きの無料診断はこちら\n${state.ctaUrl}`;
+}
+function generateNote(){
+ const state=getState();
+ const question=qs[state.questionIndex];
+ const planet=planets[state.planetKey];
+ $('noteIdeas').value=makeTitleIdeas(state,question,planet);
+ $('noteOutline').value=makeOutline(state,question,planet);
+ $('noteBody').value=makeBody(state,question,planet);
+ $('noteCta').value=makeCta(state.ctaUrl);
+ $('noteSocial').value=makeSocial(state,question);
+ $('noteStatus').textContent='記事を生成しました';
+}
+async function copyNoteBody(){
+ try{
+  await navigator.clipboard.writeText($('noteBody').value);
+  $('noteStatus').textContent='記事本文をコピーしました';
+ }catch(e){
+  $('noteStatus').textContent='コピーできませんでした';
+ }
+}
+$('noteGenerate').onclick=generateNote;
+$('noteCopyAll').onclick=copyNoteBody;
+populateControls();
+generateNote();
+</script>
+</body>
+</html>
